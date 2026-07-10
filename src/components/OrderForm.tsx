@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Package, ShoppingBag } from "lucide-react";
+import { Loader2, Package, ShoppingBag, CheckCircle } from "lucide-react";
 import {
   formatINR,
   SERVICES,
@@ -43,6 +43,7 @@ export function OrderForm({
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [cartLoading, setCartLoading] = useState(false);
+  const [cartAdded, setCartAdded] = useState(false);
   const [error, setError] = useState("");
 
   const selectedService = SERVICES.find((s) => s.id === serviceType);
@@ -107,12 +108,17 @@ export function OrderForm({
       return;
     }
 
-    // Reset form and redirect back to order page so the user can add more items
+    // Reset form fields
     setProductName("");
     setNotes("");
     if (!isLabel) setQuantity(100);
 
-    window.location.href = "/order";
+    // Show added state briefly, then smooth-navigate back to order page
+    setCartAdded(true);
+    setTimeout(() => {
+      setCartAdded(false);
+      router.push("/order");
+    }, 900);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -172,20 +178,26 @@ export function OrderForm({
           <button
             type="button"
             onClick={handleAddToCart}
-            disabled={cartLoading}
-            className="flex items-center justify-center gap-2 rounded-xl border-2 border-orange-500 py-4 font-semibold text-orange-600 transition-colors hover:bg-orange-50 disabled:opacity-50"
+            disabled={cartLoading || cartAdded}
+            className={`flex items-center justify-center gap-2 rounded-xl border-2 py-4 font-semibold transition-all duration-300 disabled:opacity-70 ${
+              cartAdded
+                ? "border-green-500 bg-green-50 text-green-600"
+                : "border-orange-500 text-orange-600 hover:bg-orange-50"
+            }`}
           >
             {cartLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
+            ) : cartAdded ? (
+              <CheckCircle className="h-5 w-5" />
             ) : (
               <ShoppingBag className="h-5 w-5" />
             )}
-            Add to Cart
+            {cartAdded ? "Added!" : "Add to Cart"}
           </button>
           <button
             type="button"
             onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
-            disabled={loading}
+            disabled={loading || cartAdded}
             className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
           >
             {loading && <Loader2 className="h-5 w-5 animate-spin" />}
@@ -429,19 +441,25 @@ export function OrderForm({
           <button
             type="button"
             onClick={handleAddToCart}
-            disabled={cartLoading}
-            className="flex items-center justify-center gap-2 rounded-xl border-2 border-orange-500 py-4 font-semibold text-orange-600 transition-colors hover:bg-orange-50 disabled:opacity-50"
+            disabled={cartLoading || cartAdded}
+            className={`flex items-center justify-center gap-2 rounded-xl border-2 py-4 font-semibold transition-all duration-300 disabled:opacity-70 ${
+              cartAdded
+                ? "border-green-500 bg-green-50 text-green-600"
+                : "border-orange-500 text-orange-600 hover:bg-orange-50"
+            }`}
           >
             {cartLoading ? (
               <Loader2 className="h-5 w-5 animate-spin" />
+            ) : cartAdded ? (
+              <CheckCircle className="h-5 w-5" />
             ) : (
               <ShoppingBag className="h-5 w-5" />
             )}
-            Add to Cart
+            {cartAdded ? "Added!" : "Add to Cart"}
           </button>
           <button
             type="submit"
-            disabled={loading}
+            disabled={loading || cartAdded}
             className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
           >
             {loading && <Loader2 className="h-5 w-5 animate-spin" />}
