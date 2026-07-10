@@ -75,27 +75,34 @@ export function OrderForm({
     return quantity;
   }
 
-  async function handleAddToCart() {
+  async function handleAddToCart(): Promise<boolean> {
     setError("");
     setCartLoading(true);
+
+    // Product name is required for all non-label services
+    if (!isLabel && !productName.trim()) {
+      setCartLoading(false);
+      setError("Please enter a product name.");
+      return false;
+    }
 
     const orderQty = getOrderQuantity();
     if (!isLabel && selectedService?.moq && orderQty < selectedService.moq) {
       setCartLoading(false);
       setError(`Minimum order quantity for ${selectedService.name} is ${selectedService.moq}.`);
-      return;
+      return false;
     }
 
     if (isLabel && !labelLayoutJson) {
       setCartLoading(false);
       setError("Please configure the label layout before adding to cart.");
-      return;
+      return false;
     }
 
     if (isInsert && !insertType) {
       setCartLoading(false);
       setError("Please select an insert type (Coloured or B&W).");
-      return;
+      return false;
     }
 
     const result = addItem({
@@ -111,7 +118,7 @@ export function OrderForm({
 
     if (!result.ok) {
       setError(result.error);
-      return;
+      return false;
     }
 
     // Flash green tick, then immediately reset + scroll
@@ -125,6 +132,7 @@ export function OrderForm({
       window.scrollTo({ top: 0, behavior: "smooth" });
       router.refresh();
     }, 400);
+    return true;
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -203,13 +211,12 @@ export function OrderForm({
         </button>
 
         <button
-          type={isFormSubmit ? "submit" : "button"}
-          onClick={isFormSubmit ? undefined : (e) => handleSubmit(e as unknown as React.FormEvent)}
-          disabled={loading || cartAdded}
+          type="button"
+          onClick={() => router.push("/cart")}
+          disabled={cartLoading}
           className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-all duration-200 hover:bg-orange-600 active:scale-95 disabled:opacity-50"
         >
-          {loading && <Loader2 className="h-5 w-5 animate-spin" />}
-          {loading ? "Placing..." : "Order Now"}
+          Go to Cart
         </button>
       </div>
     );
