@@ -108,17 +108,23 @@ export function OrderForm({
       return;
     }
 
-    // Reset form fields
-    setProductName("");
-    setNotes("");
-    if (!isLabel) setQuantity(100);
-
-    // Show added state briefly, then smooth-navigate back to order page
+    // Show success state
     setCartAdded(true);
+
+    // Reset form fields after a tiny delay so the user sees the green tick
     setTimeout(() => {
+      setProductName("");
+      setNotes("");
+      if (!isLabel) setQuantity(100);
       setCartAdded(false);
-      router.push("/order");
-    }, 900);
+      setError("");
+
+      // Scroll to top of page smoothly — we're already on /order
+      window.scrollTo({ top: 0, behavior: "smooth" });
+
+      // Also push so Next.js refreshes any server state (cart count in header)
+      router.refresh();
+    }, 1000);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -167,49 +173,69 @@ export function OrderForm({
     }
   }
 
-  // buttonsOnly mode — only render the action buttons (for label service step 4)
+  // ── Shared button block used in both modes ────────────────────────────────
+  function renderButtons(isFormSubmit = true) {
+    return (
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <button
+          type="button"
+          onClick={handleAddToCart}
+          disabled={cartLoading || cartAdded}
+          className={`relative flex items-center justify-center gap-2 rounded-xl border-2 py-4 font-semibold transition-all duration-300 ${
+            cartAdded
+              ? "border-green-500 bg-green-500 text-white scale-95"
+              : "border-orange-500 text-orange-600 hover:bg-orange-50 active:scale-95"
+          } disabled:cursor-not-allowed`}
+        >
+          {cartLoading ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : cartAdded ? (
+            <CheckCircle className="h-5 w-5 animate-bounce" />
+          ) : (
+            <ShoppingBag className="h-5 w-5" />
+          )}
+          {cartLoading ? "Adding..." : cartAdded ? "Added to Cart ✓" : "Add to Cart"}
+        </button>
+
+        <button
+          type={isFormSubmit ? "submit" : "button"}
+          onClick={isFormSubmit ? undefined : (e) => handleSubmit(e as unknown as React.FormEvent)}
+          disabled={loading || cartAdded}
+          className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-all duration-200 hover:bg-orange-600 active:scale-95 disabled:opacity-50"
+        >
+          {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+          {loading ? "Placing..." : "Order Now"}
+        </button>
+      </div>
+    );
+  }
+
+  // buttonsOnly mode — for label service step 4
   if (buttonsOnly) {
     return (
       <div className="space-y-4">
         {error && (
           <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
         )}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={cartLoading || cartAdded}
-            className={`flex items-center justify-center gap-2 rounded-xl border-2 py-4 font-semibold transition-all duration-300 disabled:opacity-70 ${
-              cartAdded
-                ? "border-green-500 bg-green-50 text-green-600"
-                : "border-orange-500 text-orange-600 hover:bg-orange-50"
-            }`}
-          >
-            {cartLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : cartAdded ? (
-              <CheckCircle className="h-5 w-5" />
-            ) : (
-              <ShoppingBag className="h-5 w-5" />
-            )}
-            {cartAdded ? "Added!" : "Add to Cart"}
-          </button>
-          <button
-            type="button"
-            onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
-            disabled={loading || cartAdded}
-            className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
-          >
-            {loading && <Loader2 className="h-5 w-5 animate-spin" />}
-            {loading ? "Placing..." : "Order Now"}
-          </button>
-        </div>
+        {renderButtons(false)}
       </div>
     );
   }
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
+      {/* Added to cart toast banner */}
+      <div
+        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+          cartAdded ? "max-h-20 opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
+          <CheckCircle className="h-5 w-5 shrink-0 text-green-500" />
+          Item added to cart! You can add another item below.
+        </div>
+      </div>
+
       {!userId && (
         <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800">
           Please{" "}
@@ -267,15 +293,13 @@ export function OrderForm({
       {!isLabel && (
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700">
-            Quantity {selectedService?.moq ? `(Editable from 0, MOQ: ${selectedService.moq})` : "(min. 0 for estimate)"}
+            Quantity {selectedService?.moq ? `(MOQ: ${selectedService.moq})` : "(min. 0 for estimate)"}
           </label>
           <input
             type="number"
             min={0}
             value={quantity}
-            onChange={(e) =>
-              setQuantity(Math.max(0, parseInt(e.target.value) || 0))
-            }
+            onChange={(e) => setQuantity(Math.max(0, parseInt(e.target.value) || 0))}
             className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
           />
           {isBelowMoq && (
@@ -418,11 +442,8 @@ export function OrderForm({
         </div>
       )}
 
-
       <div>
-        <label className="mb-2 block text-sm font-medium text-gray-700">
-          Additional Notes
-        </label>
+        <label className="mb-2 block text-sm font-medium text-gray-700">Additional Notes</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
@@ -436,37 +457,7 @@ export function OrderForm({
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
       )}
 
-      {!hideButtons && (
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <button
-            type="button"
-            onClick={handleAddToCart}
-            disabled={cartLoading || cartAdded}
-            className={`flex items-center justify-center gap-2 rounded-xl border-2 py-4 font-semibold transition-all duration-300 disabled:opacity-70 ${
-              cartAdded
-                ? "border-green-500 bg-green-50 text-green-600"
-                : "border-orange-500 text-orange-600 hover:bg-orange-50"
-            }`}
-          >
-            {cartLoading ? (
-              <Loader2 className="h-5 w-5 animate-spin" />
-            ) : cartAdded ? (
-              <CheckCircle className="h-5 w-5" />
-            ) : (
-              <ShoppingBag className="h-5 w-5" />
-            )}
-            {cartAdded ? "Added!" : "Add to Cart"}
-          </button>
-          <button
-            type="submit"
-            disabled={loading || cartAdded}
-            className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
-          >
-            {loading && <Loader2 className="h-5 w-5 animate-spin" />}
-            {loading ? "Placing..." : "Order Now"}
-          </button>
-        </div>
-      )}
+      {!hideButtons && renderButtons(true)}
     </form>
   );
 }
