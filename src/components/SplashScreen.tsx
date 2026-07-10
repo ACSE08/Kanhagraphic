@@ -126,7 +126,7 @@ export function SplashScreen() {
         }}
       >
         <Image
-          src="/icons/kg-logo-main.jpeg"
+          src="/icons/kanha.png"
           alt="Kanha Graphic"
           width={LOGO_W}
           height={LOGO_H}
