@@ -1,12 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import Image from "next/image";
 
 const SPLASH_KEY = "kg_splash_shown";
 
-// Website's dark navy color
-const BG = "#0a1628";
+const BG = "#031121";
 
 const LOGO_W = 300;
 const LOGO_H = 150;
@@ -119,20 +117,15 @@ export function SplashScreen() {
             : "none",
         }}
       >
-        <Image
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
           src="/icons/kanha2.png"
           alt="Kanha Graphic"
-          width={LOGO_W}
-          height={LOGO_H}
           style={{
             width: "100%",
             height: "100%",
             objectFit: "contain",
-            // screen blend removes white bg on dark backdrop
-            mixBlendMode: "screen",
-            filter: "brightness(1.15) saturate(1.2)",
           }}
-          priority
         />
       </div>
 
