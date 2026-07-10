@@ -85,6 +85,12 @@ export function OrderForm({
       return;
     }
 
+    if (isLabel && !labelLayoutJson) {
+      setCartLoading(false);
+      setError("Please configure the label layout before adding to cart.");
+      return;
+    }
+
     const result = addItem({
       serviceType,
       productName,
@@ -101,13 +107,12 @@ export function OrderForm({
       return;
     }
 
-    // Reset form fields so user can add another item
+    // Reset form and redirect back to order page so the user can add more items
     setProductName("");
     setNotes("");
     if (!isLabel) setQuantity(100);
 
-    // Redirect back to order page so the user can add more items
-    router.push("/order");
+    window.location.href = "/order";
   }
 
   async function handleSubmit(e: React.FormEvent) {
