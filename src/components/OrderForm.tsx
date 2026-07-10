@@ -22,11 +22,15 @@ export function OrderForm({
   defaultService,
   onServiceChange,
   labelLayoutJson = "",
+  hideButtons = false,
+  buttonsOnly = false,
 }: {
   userId?: string;
   defaultService?: string;
   onServiceChange?: (service: ServiceType) => void;
   labelLayoutJson?: string;
+  hideButtons?: boolean;
+  buttonsOnly?: boolean;
 }) {
   const router = useRouter();
   const { addItem } = useCart();
@@ -150,6 +154,41 @@ export function OrderForm({
     } finally {
       setLoading(false);
     }
+  }
+
+  // buttonsOnly mode — only render the action buttons (for label service step 4)
+  if (buttonsOnly) {
+    return (
+      <div className="space-y-4">
+        {error && (
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+        )}
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={cartLoading}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 border-orange-500 py-4 font-semibold text-orange-600 transition-colors hover:bg-orange-50 disabled:opacity-50"
+          >
+            {cartLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <ShoppingBag className="h-5 w-5" />
+            )}
+            Add to Cart
+          </button>
+          <button
+            type="button"
+            onClick={(e) => handleSubmit(e as unknown as React.FormEvent)}
+            disabled={loading}
+            className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+          >
+            {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+            {loading ? "Placing..." : "Order Now"}
+          </button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -380,29 +419,31 @@ export function OrderForm({
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
       )}
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-        <button
-          type="button"
-          onClick={handleAddToCart}
-          disabled={cartLoading}
-          className="flex items-center justify-center gap-2 rounded-xl border-2 border-orange-500 py-4 font-semibold text-orange-600 transition-colors hover:bg-orange-50 disabled:opacity-50"
-        >
-          {cartLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : (
-            <ShoppingBag className="h-5 w-5" />
-          )}
-          Add to Cart
-        </button>
-        <button
-          type="submit"
-          disabled={loading}
-          className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
-        >
-          {loading && <Loader2 className="h-5 w-5 animate-spin" />}
-          {loading ? "Placing..." : "Order Now"}
-        </button>
-      </div>
+      {!hideButtons && (
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+          <button
+            type="button"
+            onClick={handleAddToCart}
+            disabled={cartLoading}
+            className="flex items-center justify-center gap-2 rounded-xl border-2 border-orange-500 py-4 font-semibold text-orange-600 transition-colors hover:bg-orange-50 disabled:opacity-50"
+          >
+            {cartLoading ? (
+              <Loader2 className="h-5 w-5 animate-spin" />
+            ) : (
+              <ShoppingBag className="h-5 w-5" />
+            )}
+            Add to Cart
+          </button>
+          <button
+            type="submit"
+            disabled={loading}
+            className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-colors hover:bg-orange-600 disabled:opacity-50"
+          >
+            {loading && <Loader2 className="h-5 w-5 animate-spin" />}
+            {loading ? "Placing..." : "Order Now"}
+          </button>
+        </div>
+      )}
     </form>
   );
 }

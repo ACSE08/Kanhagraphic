@@ -1,7 +1,6 @@
 "use client";
 
-import { useState } from "react";
-import { Suspense } from "react";
+import { useState, Suspense } from "react";
 import { OrderForm } from "@/components/OrderForm";
 import { LabelSheetPlanner } from "@/components/LabelSheetPlanner";
 import { TERMS } from "@/lib/constants";
@@ -19,9 +18,11 @@ export function OrderWorkspace({
   );
   const [labelLayoutJson, setLabelLayoutJson] = useState("");
 
+  const isLabel = serviceType === "label-printing";
+
   // Compute label price from layout JSON
   const labelPrice = (() => {
-    if (serviceType !== "label-printing" || !labelLayoutJson) return null;
+    if (!isLabel || !labelLayoutJson) return null;
     try {
       const layout = JSON.parse(labelLayoutJson);
       const labelsPerSheet = Number(layout.labelsPerPage ?? 0);
@@ -38,6 +39,117 @@ export function OrderWorkspace({
     }
   })();
 
+  // ── LABEL PRINTING: single full-width column layout ──────────────────────
+  if (isLabel) {
+    return (
+      <div className="mx-auto max-w-3xl space-y-6">
+        {/* Step 1 — Order details (service selector + product name + notes) */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-md sm:p-8">
+          <div className="mb-5 flex items-center gap-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white">
+              1
+            </span>
+            <h2 className="text-lg font-bold text-[#0a1628]">Order Details</h2>
+          </div>
+          <Suspense fallback={<div className="h-48 animate-pulse rounded-xl bg-gray-100" />}>
+            <OrderForm
+              userId={userId}
+              defaultService={defaultService}
+              onServiceChange={setServiceType}
+              labelLayoutJson={labelLayoutJson}
+              hideButtons
+            />
+          </Suspense>
+        </div>
+
+        {/* Step 2 — Label Sheet Planner */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-md sm:p-8">
+          <div className="mb-5 flex items-center gap-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white">
+              2
+            </span>
+            <h2 className="text-lg font-bold text-[#0a1628]">Configure Label Layout</h2>
+          </div>
+          <LabelSheetPlanner
+            onLayoutChange={(_input, json) => setLabelLayoutJson(json)}
+          />
+        </div>
+
+        {/* Step 3 — Estimated Total */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-md sm:p-8">
+          <div className="mb-5 flex items-center gap-3">
+            <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${labelPrice ? "bg-orange-500" : "bg-gray-300"}`}>
+              3
+            </span>
+            <h2 className={`text-lg font-bold ${labelPrice ? "text-[#0a1628]" : "text-gray-400"}`}>
+              Estimated Total
+            </h2>
+          </div>
+
+          {labelPrice ? (
+            <div className="space-y-2 rounded-xl bg-[#0a1628] p-5 text-white">
+              <div className="flex justify-between text-sm">
+                <span className="text-white/60">Rate</span>
+                <span>{formatINR(LABEL_SHEET_RATE)} / sheet</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-white/60">Sheets required</span>
+                <span>{labelPrice.sheetsNeeded}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-white/60">Subtotal</span>
+                <span>{formatINR(labelPrice.subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-white/60">GST (18%)</span>
+                <span>{formatINR(labelPrice.gst)}</span>
+              </div>
+              <div className="flex justify-between border-t border-white/20 pt-3 text-lg font-bold">
+                <span>Total</span>
+                <span className="text-orange-400">{formatINR(labelPrice.total)}</span>
+              </div>
+            </div>
+          ) : (
+            <div className="rounded-xl border-2 border-dashed border-gray-200 p-6 text-center text-sm text-gray-400">
+              Complete the label layout above to see your pricing at{" "}
+              <span className="font-semibold text-gray-600">{formatINR(LABEL_SHEET_RATE)}/sheet</span>.
+            </div>
+          )}
+        </div>
+
+        {/* Step 4 — Buttons at the very bottom */}
+        <div className="rounded-2xl border border-gray-100 bg-white p-5 shadow-md sm:p-6">
+          <div className="mb-4 flex items-center gap-3">
+            <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white">
+              4
+            </span>
+            <h2 className="text-lg font-bold text-[#0a1628]">Place Your Order</h2>
+          </div>
+          <Suspense fallback={null}>
+            <OrderForm
+              userId={userId}
+              defaultService={defaultService}
+              onServiceChange={setServiceType}
+              labelLayoutJson={labelLayoutJson}
+              buttonsOnly
+            />
+          </Suspense>
+        </div>
+
+        {/* Important Notes */}
+        <div className="rounded-2xl border border-orange-100 bg-orange-50 p-5">
+          <h3 className="mb-3 font-bold text-orange-800">Important Notes</h3>
+          <ul className="space-y-2 text-xs text-orange-700">
+            {TERMS.map((t) => (
+              <li key={t}>• {t}</li>
+            ))}
+          </ul>
+        </div>
+      </div>
+    );
+  }
+
+  // ── ALL OTHER SERVICES: original two-column layout ────────────────────────
   return (
     <div className="flex flex-col gap-8 lg:grid lg:grid-cols-5 lg:gap-10">
       <div className="order-1 lg:order-1 lg:col-span-3">
@@ -57,67 +169,11 @@ export function OrderWorkspace({
       </div>
 
       <div className="order-2 space-y-6 lg:order-2 lg:col-span-2">
-        {serviceType === "label-printing" && (
-          <div className="space-y-4">
-            {/* Step 1 */}
-            <div className="flex items-center gap-3">
-              <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-orange-500 text-sm font-bold text-white">1</span>
-              <span className="font-semibold text-[#0a1628]">Configure Your Label Layout</span>
-            </div>
-            <LabelSheetPlanner
-              onLayoutChange={(_input, json) => setLabelLayoutJson(json)}
-            />
-
-            {/* Step 2 */}
-            <div className="flex items-center gap-3">
-              <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full text-sm font-bold text-white ${
-                labelPrice ? "bg-orange-500" : "bg-gray-300"
-              }`}>2</span>
-              <span className={`font-semibold ${labelPrice ? "text-[#0a1628]" : "text-gray-400"}`}>
-                Estimated Total
-              </span>
-            </div>
-
-            {labelPrice ? (
-              <div className="space-y-2 rounded-xl bg-[#0a1628] p-5 text-white">
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/60">Rate</span>
-                  <span>{formatINR(LABEL_SHEET_RATE)} / sheet</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/60">Sheets required</span>
-                  <span>{labelPrice.sheetsNeeded}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/60">Subtotal</span>
-                  <span>{formatINR(labelPrice.subtotal)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-white/60">GST (18%)</span>
-                  <span>{formatINR(labelPrice.gst)}</span>
-                </div>
-                <div className="flex justify-between border-t border-white/20 pt-3 text-lg font-bold">
-                  <span>Total</span>
-                  <span className="text-orange-400">{formatINR(labelPrice.total)}</span>
-                </div>
-              </div>
-            ) : (
-              <div className="rounded-xl border-2 border-dashed border-gray-200 p-5 text-center text-sm text-gray-400">
-                Set your sheet &amp; label sizes above to see pricing at{" "}
-                <span className="font-semibold text-gray-600">{formatINR(LABEL_SHEET_RATE)}/sheet</span>.
-              </div>
-            )}
-          </div>
-        )}
-
-
         <div className="hidden rounded-2xl border border-gray-100 bg-white p-6 shadow-md lg:block">
           <h3 className="mb-4 font-bold text-[#0a1628]">How It Works</h3>
           <ol className="space-y-4 text-sm text-gray-600">
             {[
-              serviceType === "label-printing"
-                ? "Set label & page size in mm, cm or inches"
-                : "Place your order & upload Corel Draw file",
+              "Place your order & upload Corel Draw file",
               "Receive proof approval on WhatsApp",
               "Make 100% advance payment via UPI/NEFT",
               "Track printing & delivery in your dashboard",
