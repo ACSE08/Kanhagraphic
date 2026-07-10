@@ -11,6 +11,7 @@ import {
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/StatusBadge";
+import { InvoiceButton } from "@/components/InvoiceButton";
 import { formatINR, getServiceById, ORDER_STATUS_LABELS } from "@/lib/pricing";
 import { formatLabelLayoutSummary } from "@/lib/label-layout";
 import { SITE } from "@/lib/constants";
@@ -208,7 +209,14 @@ export default async function OrderDetailPage({
             )}
 
             <div className="rounded-xl border border-gray-200 bg-gray-50 p-5">
-              <h3 className="text-sm font-semibold text-gray-400 uppercase mb-4">Invoice / Receipt</h3>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="text-sm font-semibold text-gray-400 uppercase">Invoice / Receipt</h3>
+                <InvoiceButton
+                  orders={[order]}
+                  customer={{ name: session.name, email: session.email, phone: session.phone }}
+                  label="Download PDF"
+                />
+              </div>
               <div className="rounded-xl border border-gray-200 bg-white p-4">
                 <div className="flex items-start justify-between gap-4">
                   <div>

@@ -5,6 +5,7 @@ import { Plus, Package, CheckCircle, Receipt } from "lucide-react";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/StatusBadge";
+import { InvoiceButton } from "@/components/InvoiceButton";
 import { formatINR, getServiceById } from "@/lib/pricing";
 
 export const metadata: Metadata = {
@@ -75,9 +76,19 @@ export default async function DashboardPage({
 
         <div className="mb-6 grid gap-4 lg:grid-cols-[1.2fr_0.8fr]">
           <div className="rounded-2xl border border-gray-100 bg-white p-6 shadow-md">
-            <div className="mb-4 flex items-center gap-2">
-              <Receipt className="h-5 w-5 text-orange-500" />
-              <h2 className="text-lg font-bold text-[#0a1628]">Invoice / Bill Preview</h2>
+            <div className="mb-4 flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Receipt className="h-5 w-5 text-orange-500" />
+                <h2 className="text-lg font-bold text-[#0a1628]">Invoice / Bill Preview</h2>
+              </div>
+              {receiptOrders.length > 0 && (
+                <InvoiceButton
+                  orders={receiptOrders}
+                  customer={{ name: session.name, email: session.email, phone: session.phone }}
+                  label="Download PDF"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-60 transition-colors"
+                />
+              )}
             </div>
             {receiptOrders.length > 0 ? (
               <div className="space-y-3">
