@@ -108,23 +108,17 @@ export function OrderForm({
       return;
     }
 
-    // Show success state
+    // Flash green tick, then immediately reset + scroll
     setCartAdded(true);
-
-    // Reset form fields after a tiny delay so the user sees the green tick
     setTimeout(() => {
       setProductName("");
       setNotes("");
       if (!isLabel) setQuantity(100);
       setCartAdded(false);
       setError("");
-
-      // Scroll to top of page smoothly — we're already on /order
       window.scrollTo({ top: 0, behavior: "smooth" });
-
-      // Also push so Next.js refreshes any server state (cart count in header)
       router.refresh();
-    }, 1000);
+    }, 400);
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -190,7 +184,7 @@ export function OrderForm({
           {cartLoading ? (
             <Loader2 className="h-5 w-5 animate-spin" />
           ) : cartAdded ? (
-            <CheckCircle className="h-5 w-5 animate-bounce" />
+            <CheckCircle className="h-5 w-5" />
           ) : (
             <ShoppingBag className="h-5 w-5" />
           )}
@@ -226,7 +220,7 @@ export function OrderForm({
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Added to cart toast banner */}
       <div
-        className={`overflow-hidden transition-all duration-500 ease-in-out ${
+        className={`overflow-hidden transition-all duration-200 ease-in-out ${
           cartAdded ? "max-h-20 opacity-100" : "max-h-0 opacity-0"
         }`}
       >
