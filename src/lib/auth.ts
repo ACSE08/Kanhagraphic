@@ -3,9 +3,11 @@ import { cookies } from "next/headers";
 import bcrypt from "bcryptjs";
 import { prisma } from "./prisma";
 
-const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "kanha-graphics-fallback-secret"
-);
+if (!process.env.JWT_SECRET) {
+  throw new Error("JWT_SECRET environment variable is not set");
+}
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 const COOKIE_NAME = "kanha_session";
 const EXPIRY = "7d";

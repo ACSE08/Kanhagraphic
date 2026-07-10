@@ -16,6 +16,8 @@ export default defineConfig({
     path: "prisma/migrations",
   },
   datasource: {
-    url: process.env["DATABASE_URL"] ?? "",
+    // Use the session-mode pooler for migrations — transaction-mode (pgbouncer)
+    // does not support DDL statements that Prisma migrations emit.
+    url: process.env["DIRECT_URL"] ?? process.env["DATABASE_URL"] ?? "",
   },
 });

@@ -12,7 +12,16 @@ function createPrismaClient() {
     throw new Error("DATABASE_URL environment variable is not set");
   }
 
-  const adapter = new PrismaPg({ connectionString: url });
+  // In serverless environments (Vercel) each function invocation may spin up a
+  // fresh process, so we cap the pool to a small number to avoid exhausting
+  // Supabase's connection limit.  On the Supabase Supavisor pooler (port 6543)
+  // this is a no-op since the pooler manages connections itself, but it is
+  // harmless and keeps local dev safe too.
+  const adapter = new PrismaPg({
+    connectionString: url,
+    max: process.env.NODE_ENV === "production" ? 1 : 10,
+  });
+
   return new PrismaClient({ adapter });
 }
 
