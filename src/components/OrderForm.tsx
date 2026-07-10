@@ -37,7 +37,7 @@ export function OrderForm({
   const [serviceType, setServiceType] = useState<ServiceType>(
     (defaultService as ServiceType) || "blister-strips-sachet"
   );
-  const [insertType, setInsertType] = useState<InsertPrintType>("coloured");
+  const [insertType, setInsertType] = useState<InsertPrintType | null>(null);
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState(100);
   const [notes, setNotes] = useState("");
@@ -55,7 +55,7 @@ export function OrderForm({
 
   const price: PriceBreakdown | null = isBlister ? calculateBlisterPrice(quantity) : null;
   const cartonPrice: PriceBreakdown | null = isCarton ? calculateCartonPrice(quantity) : null;
-  const insertPrice: PriceBreakdown | null = isInsert ? calculateInsertPrice(quantity, insertType) : null;
+  const insertPrice: PriceBreakdown | null = isInsert && insertType ? calculateInsertPrice(quantity, insertType) : null;
 
   function handleServiceChange(value: ServiceType) {
     setServiceType(value);
@@ -92,13 +92,19 @@ export function OrderForm({
       return;
     }
 
+    if (isInsert && !insertType) {
+      setCartLoading(false);
+      setError("Please select an insert type (Coloured or B&W).");
+      return;
+    }
+
     const result = addItem({
       serviceType,
       productName,
       quantity: orderQty,
       notes,
       labelLayout: isLabel ? labelLayoutJson : null,
-      insertType: isInsert ? insertType : undefined,
+      insertType: isInsert ? insertType ?? undefined : undefined,
     });
 
     setCartLoading(false);
@@ -135,6 +141,11 @@ export function OrderForm({
       return;
     }
 
+    if (isInsert && !insertType) {
+      setError("Please select an insert type (Coloured or B&W).");
+      return;
+    }
+
     const orderQty = getOrderQuantity();
     if (!isLabel && selectedService?.moq && orderQty < selectedService.moq) {
       setError(`Minimum order quantity for ${selectedService.name} is ${selectedService.moq}.`);
@@ -148,7 +159,7 @@ export function OrderForm({
       formData.append("productName", productName.trim());
       formData.append("quantity", String(orderQty));
       formData.append("notes", notes);
-      if (isInsert) formData.append("insertType", insertType);
+      if (isInsert && insertType) formData.append("insertType", insertType);
       if (labelLayoutJson) formData.append("labelLayout", labelLayoutJson);
 
       const res = await fetch("/api/orders", { method: "POST", body: formData });
@@ -306,15 +317,40 @@ export function OrderForm({
 
       {isInsert && (
         <div>
-          <label className="mb-2 block text-sm font-medium text-gray-700">Insert Type</label>
-          <select
-            value={insertType}
-            onChange={(e) => setInsertType(e.target.value as InsertPrintType)}
-            className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
-          >
-            <option value="coloured">Coloured (₹12/piece)</option>
-            <option value="bw">B&amp;W (₹3/piece)</option>
-          </select>
+          <label className="mb-3 block text-sm font-medium text-gray-700">
+            Insert Type <span className="text-orange-500">*</span>
+          </label>
+          <div className="grid grid-cols-2 gap-3">
+            {(
+              [
+                { value: "coloured", label: "Coloured", rate: "₹12/piece" },
+                { value: "bw", label: "B&W", rate: "₹3/piece" },
+              ] as const
+            ).map(({ value, label, rate }) => (
+              <label
+                key={value}
+                className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition-colors ${
+                  insertType === value
+                    ? "border-orange-500 bg-orange-50"
+                    : "border-gray-200 bg-white hover:border-orange-300"
+                }`}
+              >
+                <input
+                  type="radio"
+                  name="insertType"
+                  value={value}
+                  checked={insertType === value}
+                  onChange={() => setInsertType(value)}
+                  className="accent-orange-500"
+                  required
+                />
+                <div>
+                  <p className="text-sm font-semibold text-gray-800">{label}</p>
+                  <p className="text-xs text-gray-500">{rate}</p>
+                </div>
+              </label>
+            ))}
+          </div>
         </div>
       )}
 

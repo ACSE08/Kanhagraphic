@@ -9,7 +9,7 @@ const signupSchema = z.object({
   email: z.string().email("Invalid email address"),
   phone: z.string().min(1, "Phone number is required"),
   companyName: z.string().min(1, "Company name is required"),
-  address: z.string().optional(),
+  address: z.string().min(1, "Business address is required"),
   gstNumber: z.string().optional(),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
@@ -43,7 +43,7 @@ export async function POST(request: Request) {
         email,
         phone,
         companyName,
-        address: address || null,
+        address: address,
         gstNumber: gstNumber || null,
         password: hashed,
       },

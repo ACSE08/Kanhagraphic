@@ -13,6 +13,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
 
+  // Login identifier toggle
+  const [loginMethod, setLoginMethod] = useState<"email" | "phone">("email");
+
   // Signup fields
   const [companyName, setCompanyName] = useState("");
   const [name, setName] = useState("");
@@ -22,6 +25,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
 
   // Shared fields
   const [email, setEmail] = useState("");
+  const [loginPhone, setLoginPhone] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
 
@@ -37,7 +41,9 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/signup";
       const body =
         mode === "login"
-          ? { email: email.trim().toLowerCase(), password }
+          ? loginMethod === "email"
+            ? { email: email.trim().toLowerCase(), password }
+            : { phone: loginPhone.trim(), password }
           : {
               companyName: companyName.trim(),
               name: name.trim(),
@@ -141,7 +147,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {/* Address */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Business Address <span className="text-gray-400 font-normal">(optional)</span>
+              Business Address <span className="text-orange-500">*</span>
             </label>
             <div className="relative">
               <MapPin className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
@@ -149,6 +155,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 rows={2}
+                required
                 className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none transition-colors"
                 placeholder="City, State, PIN"
               />
@@ -177,24 +184,82 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         </>
       )}
 
-      {/* Email */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1.5">
-          Email Address <span className="text-orange-500">*</span>
-        </label>
-        <div className="relative">
-          <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            autoComplete={mode === "login" ? "email" : "off"}
-            className={inputClass}
-            placeholder="you@company.com"
-          />
+      {/* Email / Phone — login shows a toggle, signup always uses email */}
+      {mode === "login" ? (
+        <div>
+          {/* Toggle */}
+          <div className="flex rounded-xl border border-gray-200 overflow-hidden mb-3">
+            <button
+              type="button"
+              onClick={() => { setLoginMethod("email"); setError(""); }}
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                loginMethod === "email"
+                  ? "bg-orange-500 text-white"
+                  : "bg-white text-gray-500 hover:bg-gray-50"
+              }`}
+            >
+              Email
+            </button>
+            <button
+              type="button"
+              onClick={() => { setLoginMethod("phone"); setError(""); }}
+              className={`flex-1 py-2 text-sm font-medium transition-colors ${
+                loginMethod === "phone"
+                  ? "bg-orange-500 text-white"
+                  : "bg-white text-gray-500 hover:bg-gray-50"
+              }`}
+            >
+              Phone Number
+            </button>
+          </div>
+
+          {loginMethod === "email" ? (
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                autoComplete="email"
+                className={inputClass}
+                placeholder="you@company.com"
+              />
+            </div>
+          ) : (
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <input
+                type="tel"
+                value={loginPhone}
+                onChange={(e) => setLoginPhone(e.target.value)}
+                required
+                autoComplete="tel"
+                className={inputClass}
+                placeholder="+91 98765 43210"
+              />
+            </div>
+          )}
         </div>
-      </div>
+      ) : (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">
+            Email Address <span className="text-orange-500">*</span>
+          </label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              autoComplete="off"
+              className={inputClass}
+              placeholder="you@company.com"
+            />
+          </div>
+        </div>
+      )}
 
       {/* Password */}
       <div>

@@ -4,10 +4,15 @@ import { prisma } from "@/lib/prisma";
 import { verifyPassword, createSession } from "@/lib/auth";
 import { appendWorkbookEventSafely } from "@/lib/excel-report";
 
-const loginSchema = z.object({
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(1, "Password is required"),
-});
+const loginSchema = z
+  .object({
+    email: z.string().email("Invalid email address").optional(),
+    phone: z.string().min(1, "Phone number is required").optional(),
+    password: z.string().min(1, "Password is required"),
+  })
+  .refine((d) => d.email || d.phone, {
+    message: "Email or phone number is required",
+  });
 
 export async function POST(request: Request) {
   try {
@@ -21,16 +26,20 @@ export async function POST(request: Request) {
       );
     }
 
-    const { email, password } = parsed.data;
+    const { email, phone, password } = parsed.data;
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    // Look up by email or phone — whichever was provided
+    const user = email
+      ? await prisma.user.findUnique({ where: { email } })
+      : await prisma.user.findFirst({ where: { phone: phone! } });
+
     if (!user) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     const valid = await verifyPassword(password, user.password);
     if (!valid) {
-      return NextResponse.json({ error: "Invalid email or password" }, { status: 401 });
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
     }
 
     // Create session — this is the critical step
