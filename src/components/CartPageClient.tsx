@@ -233,7 +233,7 @@ export function CartPageClient({ userId, customer }: CartPageClientProps) {
         </button>
 
         {/* Download pro-forma invoice */}
-        {totals.total > 0 && customer && (
+        {items.length > 0 && customer && (
           <div className="mt-3">
             <InvoiceButton
               orders={invoiceOrders}
@@ -255,7 +255,7 @@ export function CartPageClient({ userId, customer }: CartPageClientProps) {
       </div>
 
       {/* Guest invoice prompt */}
-      {totals.total > 0 && !customer && (
+      {items.length > 0 && !customer && (
         <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600">
           <FileDown className="h-5 w-5 shrink-0 text-orange-500" />
           <span>
