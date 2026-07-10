@@ -5,8 +5,11 @@ import Image from "next/image";
 
 const SPLASH_KEY = "kg_splash_shown";
 
-const LOGO_W = 280;
-const LOGO_H = 140;
+// Website's dark navy color
+const BG = "#0a1628";
+
+const LOGO_W = 300;
+const LOGO_H = 150;
 
 export function SplashScreen() {
   const [phase, setPhase] = useState<"idle" | "enter" | "slide" | "done">("idle");
@@ -24,11 +27,11 @@ export function SplashScreen() {
       ) as HTMLImageElement | null;
 
       if (headerLogo && logoRef.current) {
-        const dest   = headerLogo.getBoundingClientRect();
+        const dest  = headerLogo.getBoundingClientRect();
         const splash = logoRef.current.getBoundingClientRect();
-        const dx     = dest.left - splash.left + (dest.width  - LOGO_W) / 2;
-        const dy     = dest.top  - splash.top  + (dest.height - LOGO_H) / 2;
-        const scale  = Math.min(dest.width / LOGO_W, dest.height / LOGO_H);
+        const dx    = dest.left - splash.left + (dest.width  - LOGO_W) / 2;
+        const dy    = dest.top  - splash.top  + (dest.height - LOGO_H) / 2;
+        const scale = Math.min(dest.width / LOGO_W, dest.height / LOGO_H);
 
         setSlideStyle({
           transform: `translate(${dx}px, ${dy}px) scale(${scale})`,
@@ -38,7 +41,7 @@ export function SplashScreen() {
         });
       } else {
         setSlideStyle({
-          transform: "translateY(-140px) scale(0.28)",
+          transform: "translateY(-160px) scale(0.3)",
           transformOrigin: "top center",
           transition: "transform 580ms cubic-bezier(0.4,0,0.2,1), opacity 250ms ease 300ms",
           opacity: 0,
@@ -63,18 +66,18 @@ export function SplashScreen() {
 
   return (
     <>
-      {/* Backdrop — clean white, fades as logo departs */}
+      {/* Backdrop — dark navy matching website header */}
       <div
         className="fixed inset-0 z-[9998]"
         style={{
-          background: "linear-gradient(160deg, #ffffff 0%, #f8f9ff 60%, #fff7f0 100%)",
+          background: BG,
           opacity: isSlide ? 0 : 1,
           transition: isSlide ? "opacity 550ms ease 80ms" : "none",
           pointerEvents: "none",
         }}
       />
 
-      {/* Decorative glow rings behind logo */}
+      {/* Subtle radial glow */}
       {isEnter && (
         <div
           className="fixed z-[9998] pointer-events-none"
@@ -82,25 +85,17 @@ export function SplashScreen() {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: 360,
-            height: 360,
+            width: 500,
+            height: 500,
+            borderRadius: "50%",
+            background:
+              "radial-gradient(circle, rgba(249,115,22,0.12) 0%, rgba(249,115,22,0.04) 45%, transparent 70%)",
+            animation: "kg-pulse 2.2s ease-in-out infinite",
           }}
-        >
-          {/* Outer ring */}
-          <div
-            style={{
-              position: "absolute",
-              inset: 0,
-              borderRadius: "50%",
-              background:
-                "radial-gradient(circle, rgba(249,115,22,0.08) 0%, rgba(249,115,22,0.03) 50%, transparent 70%)",
-              animation: "kg-pulse 2s ease-in-out infinite",
-            }}
-          />
-        </div>
+        />
       )}
 
-      {/* Logo */}
+      {/* Logo — full image, no crop */}
       <div
         ref={logoRef}
         className="fixed z-[9999] pointer-events-none"
@@ -115,14 +110,13 @@ export function SplashScreen() {
             ? (slideStyle.transform as string)
             : isEnter
             ? "scale(1)"
-            : "scale(0.7)",
+            : "scale(0.75)",
           opacity: isSlide ? (slideStyle.opacity as number) : 1,
           transition: isSlide
             ? (slideStyle.transition as string)
             : isEnter
             ? "transform 650ms cubic-bezier(0.34,1.56,0.64,1), opacity 400ms ease"
             : "none",
-          filter: "drop-shadow(0 8px 24px rgba(0,0,0,0.10))",
         }}
       >
         <Image
@@ -130,7 +124,14 @@ export function SplashScreen() {
           alt="Kanha Graphic"
           width={LOGO_W}
           height={LOGO_H}
-          className="h-full w-full object-contain rounded-xl"
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "contain",
+            // screen blend removes white bg on dark backdrop
+            mixBlendMode: "screen",
+            filter: "brightness(1.15) saturate(1.2)",
+          }}
           priority
         />
       </div>
@@ -139,7 +140,7 @@ export function SplashScreen() {
       <div
         className="fixed z-[9999] pointer-events-none"
         style={{
-          top: `calc(50% + ${LOGO_H / 2 + 24}px)`,
+          top: `calc(50% + ${LOGO_H / 2 + 28}px)`,
           left: "50%",
           transform: "translateX(-50%)",
           width: 160,
@@ -147,17 +148,20 @@ export function SplashScreen() {
           transition: isSlide ? "opacity 200ms ease" : "none",
         }}
       >
-        {/* Track */}
         <div
-          className="h-[3px] w-full rounded-full"
-          style={{ background: "rgba(0,0,0,0.08)" }}
+          style={{
+            height: 3,
+            width: "100%",
+            borderRadius: 9999,
+            background: "rgba(255,255,255,0.12)",
+            overflow: "hidden",
+          }}
         >
-          {/* Fill */}
           <div
             style={{
               height: "100%",
               borderRadius: 9999,
-              background: "linear-gradient(90deg,#f97316,#ea580c)",
+              background: "linear-gradient(90deg, #f97316, #ea580c)",
               transformOrigin: "left center",
               animation: isEnter
                 ? "kg-progress 1.85s cubic-bezier(0.4,0,0.6,1) forwards"
@@ -165,15 +169,14 @@ export function SplashScreen() {
             }}
           />
         </div>
-        {/* Label */}
         <p
           style={{
-            marginTop: 10,
+            marginTop: 12,
             textAlign: "center",
             fontSize: 11,
             fontWeight: 500,
-            letterSpacing: "0.08em",
-            color: "rgba(0,0,0,0.35)",
+            letterSpacing: "0.1em",
+            color: "rgba(255,255,255,0.4)",
             fontFamily: "inherit",
           }}
         >
@@ -187,8 +190,8 @@ export function SplashScreen() {
           to   { transform: scaleX(1); }
         }
         @keyframes kg-pulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50%       { transform: scale(1.15); opacity: 0.6; }
+          0%, 100% { opacity: 1; transform: translate(-50%,-50%) scale(1); }
+          50%       { opacity: 0.5; transform: translate(-50%,-50%) scale(1.1); }
         }
       `}</style>
     </>
