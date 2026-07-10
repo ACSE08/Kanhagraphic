@@ -10,6 +10,17 @@ export const metadata: Metadata = {
 export default async function CartPage() {
   const session = await getSession();
 
+  const customer = session
+    ? {
+        name: session.name,
+        email: session.email,
+        phone: session.phone,
+        companyName: session.companyName,
+        address: session.address,
+        gstNumber: session.gstNumber,
+      }
+    : null;
+
   return (
     <div className="min-h-screen bg-gray-50">
       <section className="bg-[#0a1628] px-4 py-8 text-white lg:py-12">
@@ -22,7 +33,7 @@ export default async function CartPage() {
       </section>
 
       <div className="mx-auto max-w-3xl px-4 py-6 sm:px-6 lg:py-10">
-        <CartPageClient userId={session?.id} />
+        <CartPageClient userId={session?.id} customer={customer} />
       </div>
     </div>
   );

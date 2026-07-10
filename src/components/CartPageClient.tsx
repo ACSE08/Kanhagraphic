@@ -4,33 +4,50 @@ import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import {
-  ShoppingBag,
-  Trash2,
-  Loader2,
-  ArrowRight,
-  Package,
+  ShoppingBag, Trash2, Loader2, ArrowRight, Package, FileDown,
 } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { formatINR, getServiceLabel } from "@/lib/cart";
 import { formatLabelLayoutSummary } from "@/lib/label-layout";
+import { InvoiceButton } from "@/components/InvoiceButton";
+import type { InvoiceCustomer } from "@/lib/invoice-pdf";
 
-export function CartPageClient({ userId }: { userId?: string }) {
+interface CartPageClientProps {
+  userId?: string;
+  customer?: InvoiceCustomer | null;
+}
+
+export function CartPageClient({ userId, customer }: CartPageClientProps) {
   const router = useRouter();
   const { items, totals, removeItem, updateQuantity, clearCart } = useCart();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // Convert cart items → InvoiceOrder shape for the PDF generator
+  const invoiceOrders = items.map((item, idx) => ({
+    id: item.id,
+    orderNumber: `CART-${String(idx + 1).padStart(2, "0")}`,
+    batchNumber: null as string | null,
+    serviceType: item.serviceType,
+    productName: item.productName || null,
+    quantity: item.quantity,
+    unitPrice: item.unitPrice,
+    subtotal: item.subtotal,
+    gst: item.gst,
+    total: item.total,
+    notes: item.notes || null,
+    createdAt: new Date(),
+  }));
 
   async function handleCheckout() {
     if (!userId) {
       router.push("/login?redirect=/cart");
       return;
     }
-
     if (items.length === 0) return;
 
     setError("");
     setLoading(true);
-
     try {
       const res = await fetch("/api/orders/checkout", {
         method: "POST",
@@ -84,15 +101,15 @@ export function CartPageClient({ userId }: { userId?: string }) {
     <div className="space-y-6">
       <div className="rounded-xl border border-orange-100 bg-orange-50/60 p-4">
         <h2 className="text-lg font-bold text-[#0a1628] mb-1">🛒 Shopping Cart</h2>
-        <p className="text-sm text-gray-600">You have {items.length} item(s) in your cart. Review before checkout.</p>
+        <p className="text-sm text-gray-600">
+          You have {items.length} item(s) in your cart. Review before checkout.
+        </p>
       </div>
 
+      {/* Cart items */}
       <div className="space-y-4">
         {items.map((item) => (
-          <div
-            key={item.id}
-            className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm"
-          >
+          <div key={item.id} className="rounded-2xl border border-gray-100 bg-white p-5 shadow-sm">
             <div className="flex items-start justify-between gap-4">
               <div className="min-w-0 flex-1">
                 <div className="mb-1 flex items-center gap-2">
@@ -145,7 +162,6 @@ export function CartPageClient({ userId }: { userId?: string }) {
               ) : (
                 <span className="text-sm text-gray-600">{item.quantity} labels</span>
               )}
-
               <div className="text-right">
                 {item.total > 0 ? (
                   <p className="font-bold text-orange-600">{formatINR(item.total)}</p>
@@ -158,10 +174,12 @@ export function CartPageClient({ userId }: { userId?: string }) {
         ))}
       </div>
 
+      {/* Order Summary */}
       <div className="rounded-2xl bg-[#0a1628] p-6 text-white">
         <h3 className="mb-4 font-bold flex items-center gap-2">
           💳 Order Summary ({items.length} {items.length === 1 ? "item" : "items"})
         </h3>
+
         <div className="space-y-2 text-sm">
           <div className="flex justify-between">
             <span className="text-white/60">Items</span>
@@ -194,6 +212,7 @@ export function CartPageClient({ userId }: { userId?: string }) {
           <div className="mt-4 rounded-lg bg-red-500/20 p-3 text-sm text-red-200">{error}</div>
         )}
 
+        {/* Checkout button */}
         <button
           type="button"
           onClick={handleCheckout}
@@ -213,6 +232,18 @@ export function CartPageClient({ userId }: { userId?: string }) {
           )}
         </button>
 
+        {/* Download pro-forma invoice */}
+        {totals.total > 0 && customer && (
+          <div className="mt-3">
+            <InvoiceButton
+              orders={invoiceOrders}
+              customer={customer}
+              label="Download Pro-forma Invoice"
+              className="flex w-full items-center justify-center gap-2 rounded-xl border border-white/20 py-3 text-sm font-semibold text-white/80 hover:bg-white/10 disabled:opacity-50 transition-colors"
+            />
+          </div>
+        )}
+
         {!userId && (
           <p className="mt-3 text-center text-xs text-white/50">
             <Link href="/login?redirect=/cart" className="text-orange-400 underline">
@@ -222,6 +253,19 @@ export function CartPageClient({ userId }: { userId?: string }) {
           </p>
         )}
       </div>
+
+      {/* Guest invoice prompt */}
+      {totals.total > 0 && !customer && (
+        <div className="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4 text-sm text-gray-600">
+          <FileDown className="h-5 w-5 shrink-0 text-orange-500" />
+          <span>
+            <Link href="/login?redirect=/cart" className="font-semibold text-orange-600 hover:underline">
+              Login
+            </Link>{" "}
+            to download a pro-forma invoice for this cart.
+          </span>
+        </div>
+      )}
 
       <Link
         href="/order"

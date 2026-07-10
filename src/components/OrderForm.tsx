@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Package, ShoppingBag, CheckCircle } from "lucide-react";
+import { Loader2, Package, ShoppingBag } from "lucide-react";
 import {
   formatINR,
   SERVICES,
@@ -39,7 +39,6 @@ export function OrderForm({
   const [notes, setNotes] = useState("");
   const [loading, setLoading] = useState(false);
   const [cartLoading, setCartLoading] = useState(false);
-  const [cartSuccess, setCartSuccess] = useState(false);
   const [error, setError] = useState("");
 
   const selectedService = SERVICES.find((s) => s.id === serviceType);
@@ -56,7 +55,6 @@ export function OrderForm({
   function handleServiceChange(value: ServiceType) {
     setServiceType(value);
     onServiceChange?.(value);
-    setCartSuccess(false);
     setError("");
   }
 
@@ -74,7 +72,6 @@ export function OrderForm({
 
   async function handleAddToCart() {
     setError("");
-    setCartSuccess(false);
     setCartLoading(true);
 
     const orderQty = getOrderQuantity();
@@ -100,8 +97,13 @@ export function OrderForm({
       return;
     }
 
-    setCartSuccess(true);
-    setTimeout(() => setCartSuccess(false), 3000);
+    // Reset form fields so user can add another item
+    setProductName("");
+    setNotes("");
+    if (!isLabel) setQuantity(100);
+
+    // Redirect back to order page so the user can add more items
+    router.push("/order");
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -373,16 +375,6 @@ export function OrderForm({
           className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
         />
       </div>
-
-      {cartSuccess && (
-        <div className="flex items-center gap-2 rounded-xl border border-green-200 bg-green-50 p-4 text-sm text-green-800">
-          <CheckCircle className="h-5 w-5 shrink-0" />
-          Added to cart!{" "}
-          <Link href="/cart" className="font-semibold underline">
-            View cart
-          </Link>
-        </div>
-      )}
 
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
