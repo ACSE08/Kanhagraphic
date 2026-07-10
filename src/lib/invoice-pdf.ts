@@ -175,18 +175,23 @@ async function buildInvoiceDoc(
   doc.text("KANHA GRAPHIC", ML + 31, hY + 7);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
-  doc.text("D-100 INDUSTRIAL SOCIETY , NEW SAMA ROAD", ML + 31, hY + 12);
-  doc.text("VADODARA - 390 024", ML + 31, hY + 16);
+  // Split address so it wraps within the left column (available width: leftW - 31 - 2 = ~37mm)
+  const addrLines = doc.splitTextToSize("D-100 INDUSTRIAL SOCIETY , NEW SAMA ROAD", leftW - 33);
+  addrLines.forEach((line: string, i: number) => {
+    doc.text(line, ML + 31, hY + 12 + i * 4);
+  });
+  doc.text("VADODARA - 390 024", ML + 31, hY + 12 + addrLines.length * 4);
+
   doc.setDrawColor(120, 120, 120);
   doc.setLineWidth(0.2);
-  doc.line(ML + 1, hY + 22, ML + leftW - 1, hY + 22);
+  doc.line(ML + 1, hY + 24, ML + leftW - 1, hY + 24);
   doc.setFontSize(7);
-  doc.text("PAN NO", ML + 2, hY + 27);
+  doc.text("PAN NO", ML + 2, hY + 29);
   doc.setFont("helvetica", "bold");
-  doc.text("DFRPS6567D", ML + 18, hY + 27);
+  doc.text("DFRPS6567D", ML + 18, hY + 29);
   doc.setFont("helvetica", "normal");
-  doc.line(ML + 1, hY + 30, ML + leftW - 1, hY + 30);
-  doc.text("GST NO", ML + 2, hY + 35);
+  doc.line(ML + 1, hY + 33, ML + leftW - 1, hY + 33);
+  doc.text("GST NO", ML + 2, hY + 38.5);
 
   // Right header — Tax Invoice title + meta grid
   const rx = ML + leftW;
@@ -416,7 +421,7 @@ async function buildInvoiceDoc(
   const cgstW = 26;
   const sgstW = 26;
   const totW = CW - bkW - txW - cgstW - sgstW; // 65mm for TOTAL AMOUNT col
-  const botH = 34;
+  const botH = 38;
   const cgst = totalGst / 2;
   const sgst = totalGst / 2;
 
@@ -426,49 +431,53 @@ async function buildInvoiceDoc(
 
   doc.setLineWidth(0.2);
   doc.setDrawColor(120, 120, 120);
-  // vertical dividers
-  doc.line(ML + bkW,                          y, ML + bkW,                          y + botH);
-  doc.line(ML + bkW + txW,                    y, ML + bkW + txW,                    y + botH);
-  doc.line(ML + bkW + txW + cgstW,            y, ML + bkW + txW + cgstW,            y + botH);
-  doc.line(ML + bkW + txW + cgstW + sgstW,    y, ML + bkW + txW + cgstW + sgstW,    y + botH);
-  // header row divider
-  doc.line(ML + bkW, y + 10, ML + CW, y + 10);
 
-  // Header labels
+  // Outer vertical dividers — full height
+  doc.line(ML + bkW,       y, ML + bkW,       y + botH);  // Bank | Taxable
+  doc.line(ML + bkW + txW, y, ML + bkW + txW, y + botH);  // Taxable | GST+Total
+
+  // Row 1 divider (below Bank Details / TAXABLE AMOUNT / GST / TOTAL AMOUNT)
+  const gstR1 = y + 11;
+  doc.line(ML + bkW, gstR1, ML + CW, gstR1);
+
+  // Row 2 divider (below CGST AMOUNT / SGST AMOUNT sub-labels)
+  const gstR2 = y + 20;
+  doc.line(ML + bkW, gstR2, ML + CW, gstR2);
+
+  // Inner vertical dividers — only from gstR1 downward so GST header is undivided
+  doc.line(ML + bkW + txW + cgstW,            gstR1, ML + bkW + txW + cgstW,            y + botH); // CGST | SGST
+  doc.line(ML + bkW + txW + cgstW + sgstW,    gstR1, ML + bkW + txW + cgstW + sgstW,    y + botH); // SGST | TOTAL AMOUNT
+
+  // Row 1 labels
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7);
-  doc.text("Bank Details",  ML + 1.5, y + 6.5);
-  doc.text("TAXABLE",       ML + bkW + txW / 2, y + 4.5, { align: "center" });
-  doc.text("AMOUNT",        ML + bkW + txW / 2, y + 8,   { align: "center" });
-  // GST spans cgst+sgst columns — centred over both
-  doc.text("GST",           ML + bkW + txW + cgstW, y + 6.5, { align: "center" });
-  // TOTAL AMOUNT — centred in totW column
-  doc.text("TOTAL AMOUNT",  ML + bkW + txW + cgstW + sgstW + totW / 2, y + 6.5, { align: "center" });
+  doc.text("Bank Details",  ML + 1.5,                                                         y + 7);
+  doc.text("TAXABLE\nAMOUNT", ML + bkW + txW / 2,                                             y + 4.5, { align: "center" });
+  // "GST" centred over the combined CGST+SGST span
+  doc.text("GST",           ML + bkW + txW + cgstW + sgstW / 2,                               y + 7,   { align: "center" });
+  // "TOTAL AMOUNT" centred in the totW column
+  doc.text("TOTAL AMOUNT",  ML + bkW + txW + cgstW + sgstW + totW / 2,                        y + 7,   { align: "center" });
 
-  // Sub-header divider + CGST/SGST labels
-  doc.line(ML + bkW + txW, y + 10, ML + bkW + txW + cgstW + sgstW, y + 10);
-  doc.line(ML + bkW + txW + cgstW, y + 10, ML + bkW + txW + cgstW, y + botH);
+  // Row 2 sub-labels
   doc.setFontSize(6.5);
-  doc.text("CGST AMOUNT",  ML + bkW + txW + cgstW / 2,            y + 14, { align: "center" });
-  doc.text("SGST AMOUNT",  ML + bkW + txW + cgstW + sgstW / 2,    y + 14, { align: "center" });
-  doc.line(ML + bkW, y + 17, ML + CW, y + 17);
+  doc.text("CGST AMOUNT", ML + bkW + txW + cgstW / 2,         y + 16.5, { align: "center" });
+  doc.text("SGST AMOUNT", ML + bkW + txW + cgstW + sgstW / 2, y + 16.5, { align: "center" });
 
-  // Bank Name
+  // Bank Name (left column, row 2)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("Bank Name : ICICI Bank", ML + 1.5, y + 14);
+  doc.text("Bank Name : ICICI Bank", ML + 1.5, y + 16.5);
 
-  // Data values — all right-aligned within their column
-  const dataY = y + 25;
+  // Data values (row 3, below gstR2)
+  const dataY = y + 27;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
-  doc.text(totalSubtotal.toFixed(2),  ML + bkW + txW - 2,                    dataY, { align: "right" });
-  doc.text(cgst.toFixed(2),           ML + bkW + txW + cgstW - 2,            dataY, { align: "right" });
-  doc.text(sgst.toFixed(2),           ML + bkW + txW + cgstW + sgstW - 2,    dataY, { align: "right" });
+  doc.text(totalSubtotal.toFixed(2), ML + bkW + txW - 2,                 dataY, { align: "right" });
+  doc.text(cgst.toFixed(2),          ML + bkW + txW + cgstW - 2,         dataY, { align: "right" });
+  doc.text(sgst.toFixed(2),          ML + bkW + txW + cgstW + sgstW - 2, dataY, { align: "right" });
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  // Total amount right-aligned inside TOTAL AMOUNT column, 3mm from right edge
-  doc.text(`Rs ${totalAmount.toFixed(2)}`,  ML + CW - 3, dataY, { align: "right" });
+  doc.text(`Rs ${totalAmount.toFixed(2)}`, ML + CW - 3, dataY, { align: "right" });
 
   y += botH;
 
