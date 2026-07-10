@@ -32,7 +32,7 @@ export function Logo({ size = "md", variant = "dark" }: LogoProps) {
         className="group-hover:opacity-90 group-hover:scale-[1.03]"
       >
         <Image
-          src="/icons/kanha.png"
+          src="/icons/kanha2.png"
           alt="Kanha Graphic"
           width={w}
           height={h}

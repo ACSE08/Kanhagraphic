@@ -65,8 +65,8 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/icons/kanha.png",
-    apple: "/icons/kanha.png",
+    icon: "/icons/kanha2.png",
+    apple: "/icons/kanha2.png",
   },
 };
 
