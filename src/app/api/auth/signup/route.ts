@@ -7,8 +7,8 @@ import { appendWorkbookEventSafely } from "@/lib/excel-report";
 const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
-  phone: z.string().optional(),
-  companyName: z.string().optional(),
+  phone: z.string().min(1, "Phone number is required"),
+  companyName: z.string().min(1, "Company name is required"),
   address: z.string().optional(),
   gstNumber: z.string().optional(),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -41,14 +41,15 @@ export async function POST(request: Request) {
       data: {
         name,
         email,
-        phone: phone || null,
-        companyName: companyName || null,
+        phone,
+        companyName,
         address: address || null,
         gstNumber: gstNumber || null,
         password: hashed,
       },
     });
 
+    // Create session — critical step
     await createSession({
       id: user.id,
       name: user.name,
@@ -59,29 +60,37 @@ export async function POST(request: Request) {
       gstNumber: user.gstNumber,
     });
 
-    const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
-    const ipAddress = forwardedFor || request.headers.get("x-real-ip") || null;
-    const userAgent = request.headers.get("user-agent") || null;
+    // Non-critical logging — must not block or crash signup
+    try {
+      const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
+      const ipAddress = forwardedFor || request.headers.get("x-real-ip") || null;
+      const userAgent = request.headers.get("user-agent") || null;
 
-    const loginEntry = await prisma.loginHistory.create({
-      data: { userId: user.id, email: user.email, ipAddress, userAgent },
-    });
+      const loginEntry = await prisma.loginHistory.create({
+        data: { userId: user.id, email: user.email, ipAddress, userAgent },
+      });
 
-    await appendWorkbookEventSafely({
-      eventType: "signup",
-      eventTime: loginEntry.loggedAt,
-      userId: user.id,
-      name: user.name,
-      email: user.email,
-      phone: user.phone,
-      ipAddress,
-      userAgent,
-    });
+      // Fire-and-forget
+      appendWorkbookEventSafely({
+        eventType: "signup",
+        eventTime: loginEntry.loggedAt,
+        userId: user.id,
+        name: user.name,
+        email: user.email,
+        phone: user.phone,
+        ipAddress,
+        userAgent,
+      });
+    } catch (loggingError) {
+      console.error("[signup] logging failed (non-fatal):", loggingError);
+    }
 
-    return NextResponse.json({
-      user: { id: user.id, name: user.name, email: user.email },
-    });
-  } catch {
+    return NextResponse.json(
+      { user: { id: user.id, name: user.name, email: user.email } },
+      { status: 201 }
+    );
+  } catch (err) {
+    console.error("[signup] unexpected error:", err);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }

@@ -1,31 +1,19 @@
-import { existsSync } from "fs";
 import path from "path";
-import * as XLSX from "xlsx";
+
+// On Vercel the filesystem is read-only — detect and skip all writes gracefully.
+const IS_READONLY_FS =
+  process.env.VERCEL === "1" ||
+  process.env.VERCEL_ENV !== undefined ||
+  process.env.NODE_ENV === "production";
 
 const WORKBOOK_PATH = path.join(process.cwd(), "Orders & Clients.xls");
 const DEFAULT_SHEET_NAME = "Orders & Clients";
 
 const HEADER_ROW = [
-  "event_type",
-  "event_time",
-  "user_id",
-  "name",
-  "email",
-  "phone",
-  "ip_address",
-  "user_agent",
-  "order_number",
-  "batch_number",
-  "service_type",
-  "product_name",
-  "quantity",
-  "subtotal",
-  "gst",
-  "total",
-  "status",
-  "notes",
-  "file_name",
-  "label_layout",
+  "event_type", "event_time", "user_id", "name", "email", "phone",
+  "ip_address", "user_agent", "order_number", "batch_number",
+  "service_type", "product_name", "quantity", "subtotal", "gst",
+  "total", "status", "notes", "file_name", "label_layout",
 ];
 
 type WorkbookBaseEvent = {
@@ -63,30 +51,6 @@ export type WorkbookEvent = WorkbookOrderEvent | WorkbookSessionEvent;
 
 let workbookWriteQueue = Promise.resolve();
 
-function createWorkbook() {
-  const workbook = XLSX.utils.book_new();
-  const sheet = XLSX.utils.aoa_to_sheet([HEADER_ROW]);
-  XLSX.utils.book_append_sheet(workbook, sheet, DEFAULT_SHEET_NAME);
-  return workbook;
-}
-
-function loadWorkbook() {
-  if (!existsSync(WORKBOOK_PATH)) {
-    return createWorkbook();
-  }
-
-  const workbook = XLSX.readFile(WORKBOOK_PATH, { cellDates: true });
-  if (workbook.SheetNames.length === 0) {
-    const sheet = XLSX.utils.aoa_to_sheet([HEADER_ROW]);
-    XLSX.utils.book_append_sheet(workbook, sheet, DEFAULT_SHEET_NAME);
-  }
-  return workbook;
-}
-
-function getPrimarySheetName(workbook: XLSX.WorkBook) {
-  return workbook.SheetNames[0] || DEFAULT_SHEET_NAME;
-}
-
 function toRow(event: WorkbookEvent) {
   return [
     event.eventType,
@@ -113,27 +77,43 @@ function toRow(event: WorkbookEvent) {
 }
 
 async function appendWorkbookEventInternal(event: WorkbookEvent) {
-  const workbook = loadWorkbook();
-  const sheetName = getPrimarySheetName(workbook);
+  // Skip filesystem writes on Vercel / read-only environments
+  if (IS_READONLY_FS) {
+    console.log("[excel-report] skipped (read-only env):", event.eventType, event.email);
+    return;
+  }
+
+  // Dynamically import fs and xlsx only in local/writable environments
+  const [{ existsSync }, XLSX] = await Promise.all([
+    import("fs"),
+    import("xlsx"),
+  ]);
+
+  let workbook: ReturnType<typeof XLSX.utils.book_new>;
+
+  if (!existsSync(WORKBOOK_PATH)) {
+    workbook = XLSX.utils.book_new();
+    const sheet = XLSX.utils.aoa_to_sheet([HEADER_ROW]);
+    XLSX.utils.book_append_sheet(workbook, sheet, DEFAULT_SHEET_NAME);
+  } else {
+    workbook = XLSX.readFile(WORKBOOK_PATH, { cellDates: true });
+    if (workbook.SheetNames.length === 0) {
+      const sheet = XLSX.utils.aoa_to_sheet([HEADER_ROW]);
+      XLSX.utils.book_append_sheet(workbook, sheet, DEFAULT_SHEET_NAME);
+    }
+  }
+
+  const sheetName = workbook.SheetNames[0] || DEFAULT_SHEET_NAME;
   const currentSheet = workbook.Sheets[sheetName] || XLSX.utils.aoa_to_sheet([HEADER_ROW]);
   const rows = XLSX.utils.sheet_to_json<(string | number)[]>(currentSheet, { header: 1 });
-
-  if (rows.length === 0) {
-    rows.push(HEADER_ROW);
-  }
-
+  if (rows.length === 0) rows.push(HEADER_ROW);
   rows.push(toRow(event));
-
   workbook.Sheets[sheetName] = XLSX.utils.aoa_to_sheet(rows);
-  if (!workbook.SheetNames.includes(sheetName)) {
-    workbook.SheetNames.push(sheetName);
-  }
-
+  if (!workbook.SheetNames.includes(sheetName)) workbook.SheetNames.push(sheetName);
   XLSX.writeFile(workbook, WORKBOOK_PATH, { bookType: "xls" });
 }
 
 export function appendWorkbookEvent(event: WorkbookEvent) {
-  // Keep the queue healthy: if one write fails, future writes should still run.
   workbookWriteQueue = workbookWriteQueue
     .catch(() => undefined)
     .then(() => appendWorkbookEventInternal(event));
@@ -145,7 +125,7 @@ export async function appendWorkbookEventSafely(event: WorkbookEvent) {
     await appendWorkbookEvent(event);
     return { ok: true as const };
   } catch (error) {
-    console.error("Workbook logging failed:", error);
+    console.error("[excel-report] write failed (non-fatal):", error);
     return { ok: false as const };
   }
 }

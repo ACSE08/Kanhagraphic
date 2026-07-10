@@ -3,20 +3,28 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Building2, User, Phone, Mail, Lock, MapPin, FileText } from "lucide-react";
+import {
+  Loader2, Building2, User, Phone, Mail,
+  Lock, MapPin, FileText, Eye, EyeOff,
+} from "lucide-react";
 
 export function AuthForm({ mode }: { mode: "login" | "signup" }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirect = searchParams.get("redirect") || "/dashboard";
+  const redirectTo = searchParams.get("redirect") || "/dashboard";
 
-  const [name, setName] = useState("");
+  // Signup fields
   const [companyName, setCompanyName] = useState("");
-  const [email, setEmail] = useState("");
+  const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [address, setAddress] = useState("");
   const [gstNumber, setGstNumber] = useState("");
+
+  // Shared fields
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -29,8 +37,16 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       const endpoint = mode === "login" ? "/api/auth/login" : "/api/auth/signup";
       const body =
         mode === "login"
-          ? { email, password }
-          : { name, companyName, email, phone, address, gstNumber, password };
+          ? { email: email.trim().toLowerCase(), password }
+          : {
+              companyName: companyName.trim(),
+              name: name.trim(),
+              phone: phone.trim(),
+              address: address.trim(),
+              gstNumber: gstNumber.trim(),
+              email: email.trim().toLowerCase(),
+              password,
+            };
 
       const res = await fetch(endpoint, {
         method: "POST",
@@ -38,20 +54,31 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         body: JSON.stringify(body),
       });
 
-      const data = await res.json();
-      if (!res.ok) {
-        setError(data.error || "Something went wrong");
+      let data: { error?: string; user?: unknown } = {};
+      try {
+        data = await res.json();
+      } catch {
+        // Response wasn't JSON (e.g. 500 HTML error page)
+        setError("Server error. Please try again.");
         return;
       }
 
-      router.push(redirect);
-      router.refresh();
+      if (!res.ok) {
+        setError(data.error || "Something went wrong. Please try again.");
+        return;
+      }
+
+      // Success — hard navigate so the server session cookie is picked up
+      window.location.href = redirectTo;
     } catch {
-      setError("Network error. Please try again.");
+      setError("Network error. Check your connection and try again.");
     } finally {
       setLoading(false);
     }
   }
+
+  const inputClass =
+    "w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none transition-colors";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -69,7 +96,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                className={inputClass}
                 placeholder="Your company or business name"
               />
             </div>
@@ -87,7 +114,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                className={inputClass}
                 placeholder="Contact person name"
               />
             </div>
@@ -105,7 +132,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 value={phone}
                 onChange={(e) => setPhone(e.target.value)}
                 required
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+                className={inputClass}
                 placeholder="+91 98765 43210"
               />
             </div>
@@ -114,7 +141,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
           {/* Address */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
-              Business Address
+              Business Address <span className="text-gray-400 font-normal">(optional)</span>
             </label>
             <div className="relative">
               <MapPin className="absolute left-3 top-3.5 w-4 h-4 text-gray-400" />
@@ -122,7 +149,7 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 value={address}
                 onChange={(e) => setAddress(e.target.value)}
                 rows={2}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none"
+                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none resize-none transition-colors"
                 placeholder="City, State, PIN"
               />
             </div>
@@ -139,14 +166,14 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
                 type="text"
                 value={gstNumber}
                 onChange={(e) => setGstNumber(e.target.value.toUpperCase())}
-                className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none uppercase tracking-wider"
+                className={`${inputClass} uppercase tracking-wider`}
                 placeholder="22AAAAA0000A1Z5"
                 maxLength={15}
               />
             </div>
           </div>
 
-          <div className="border-t border-gray-100 pt-1" />
+          <div className="border-t border-gray-100" />
         </>
       )}
 
@@ -162,7 +189,8 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+            autoComplete={mode === "login" ? "email" : "off"}
+            className={inputClass}
             placeholder="you@company.com"
           />
         </div>
@@ -176,14 +204,23 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
         <div className="relative">
           <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
           <input
-            type="password"
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
             minLength={6}
-            className="w-full pl-10 pr-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-orange-500 focus:border-orange-500 outline-none"
+            autoComplete={mode === "login" ? "current-password" : "new-password"}
+            className={`${inputClass} pr-11`}
             placeholder="Min. 6 characters"
           />
+          <button
+            type="button"
+            onClick={() => setShowPassword((v) => !v)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            tabIndex={-1}
+          >
+            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          </button>
         </div>
       </div>
 
@@ -196,24 +233,32 @@ export function AuthForm({ mode }: { mode: "login" | "signup" }) {
       <button
         type="submit"
         disabled={loading}
-        className="w-full py-3.5 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
+        className="w-full py-3.5 rounded-xl bg-orange-500 text-white font-semibold hover:bg-orange-600 active:bg-orange-700 transition-colors disabled:opacity-50 flex items-center justify-center gap-2"
       >
         {loading && <Loader2 className="w-4 h-4 animate-spin" />}
-        {mode === "login" ? "Login" : "Create Account"}
+        {loading
+          ? mode === "login" ? "Logging in…" : "Creating account…"
+          : mode === "login" ? "Login" : "Create Account"}
       </button>
 
       <p className="text-center text-sm text-gray-500">
         {mode === "login" ? (
           <>
             Don&apos;t have an account?{" "}
-            <Link href={`/signup?redirect=${redirect}`} className="text-orange-600 font-medium hover:underline">
+            <Link
+              href={`/signup?redirect=${encodeURIComponent(redirectTo)}`}
+              className="text-orange-600 font-medium hover:underline"
+            >
               Sign up
             </Link>
           </>
         ) : (
           <>
             Already have an account?{" "}
-            <Link href={`/login?redirect=${redirect}`} className="text-orange-600 font-medium hover:underline">
+            <Link
+              href={`/login?redirect=${encodeURIComponent(redirectTo)}`}
+              className="text-orange-600 font-medium hover:underline"
+            >
               Login
             </Link>
           </>
