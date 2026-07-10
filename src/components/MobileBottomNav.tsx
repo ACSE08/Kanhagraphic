@@ -8,7 +8,7 @@ import type { SessionUser } from "@/lib/auth";
 const tabs = [
   { href: "/", label: "Home", icon: Home, match: (p: string) => p === "/" },
   { href: "/services", label: "Services", icon: Layers, match: (p: string) => p.startsWith("/services") },
-  { href: "/order", label: "Order", icon: ShoppingCart, match: (p: string) => p.startsWith("/order") || p.startsWith("/cart"), primary: true },
+  { href: "/cart", label: "Cart", icon: ShoppingCart, match: (p: string) => p.startsWith("/cart"), primary: true },
   { href: "/dashboard", label: "Orders", icon: User, match: (p: string) => p.startsWith("/dashboard") || p.startsWith("/login") || p.startsWith("/signup") },
   { href: "/contact", label: "Contact", icon: Phone, match: (p: string) => p.startsWith("/contact") },
 ];

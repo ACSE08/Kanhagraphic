@@ -63,14 +63,10 @@ export default function HomePage() {
           </p>
           <div className="grid grid-cols-3 gap-2">
             <Link
-              href="/cart"
+              href="/order"
               className="col-span-3 flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-3.5 text-sm font-semibold active:scale-[0.98]"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-              </svg>
-              View Cart
+              Place Order <ArrowRight className="h-4 w-4" />
             </Link>
             <a
               href={`https://wa.me/${SITE.whatsapp}`}
@@ -328,18 +324,14 @@ export default function HomePage() {
           </p>
           <div className="flex flex-col gap-3 sm:flex-row sm:justify-center sm:gap-4">
             <Link
-              href="/cart"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-orange-500 px-8 py-3.5 font-semibold lg:py-4 hover:bg-orange-600 transition-colors"
+              href="/signup"
+              className="rounded-xl bg-orange-500 px-8 py-3.5 font-semibold lg:py-4 hover:bg-orange-600"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-              </svg>
-              View Cart
+              Create Free Account
             </Link>
             <Link
               href="/contact"
-              className="rounded-xl border border-white/30 px-8 py-3.5 font-semibold lg:py-4 hover:bg-white/10 transition-colors"
+              className="rounded-xl border border-white/30 px-8 py-3.5 font-semibold lg:py-4 hover:bg-white/10"
             >
               Contact Us
             </Link>
