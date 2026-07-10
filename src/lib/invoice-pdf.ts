@@ -148,7 +148,7 @@ async function buildInvoiceDoc(
 
   // ── HEADER ────────────────────────────────────────────────────────────────
   const hY = 8;
-  const hH = 30;
+  const hH = 42;   // tall enough for 4 right-column rows: 11+10+8+8+5 = 42mm
   const leftW = 70;
   const rightW = CW - leftW;
 
@@ -169,7 +169,7 @@ async function buildInvoiceDoc(
     doc.text("Graphic", ML + 2, hY + 15);
   }
 
-  // Company info
+  // Company info (left block)
   doc.setFont("helvetica", "bold");
   doc.setFontSize(9);
   doc.text("KANHA GRAPHIC", ML + 31, hY + 7);
@@ -179,57 +179,67 @@ async function buildInvoiceDoc(
   doc.text("VADODARA - 390 024", ML + 31, hY + 16);
   doc.setDrawColor(120, 120, 120);
   doc.setLineWidth(0.2);
-  doc.line(ML + 1, hY + 20, ML + leftW - 1, hY + 20);
+  doc.line(ML + 1, hY + 22, ML + leftW - 1, hY + 22);
   doc.setFontSize(7);
-  doc.text("PAN NO", ML + 2, hY + 24);
+  doc.text("PAN NO", ML + 2, hY + 27);
   doc.setFont("helvetica", "bold");
-  doc.text("DFRPS6567D", ML + 18, hY + 24);
+  doc.text("DFRPS6567D", ML + 18, hY + 27);
   doc.setFont("helvetica", "normal");
-  doc.text("GST NO", ML + 2, hY + 28.5);
+  doc.line(ML + 1, hY + 30, ML + leftW - 1, hY + 30);
+  doc.text("GST NO", ML + 2, hY + 35);
 
   // Right header — Tax Invoice title + meta grid
   const rx = ML + leftW;
+  const midX = rx + rightW * 0.45;  // vertical mid-divider x
+
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
   doc.text("Tax Invoice", rx + rightW / 2, hY + 8, { align: "center" });
 
+  // Mid vertical divider spans full header height
   doc.setLineWidth(0.2);
   doc.setDrawColor(120, 120, 120);
+  doc.line(midX, hY + 11, midX, hY + hH);
 
+  // Row 1: Invoice No | Date  (y: hY+11 to hY+21)
   const r1Y = hY + 11;
   doc.line(rx, r1Y, rx + rightW, r1Y);
-  doc.line(rx + rightW * 0.45, r1Y, rx + rightW * 0.45, hY + hH);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   doc.text("Invoice No.", rx + 1.5, r1Y + 3.5);
   doc.setFont("helvetica", "bold");
   doc.text(invoiceNo, rx + 1.5, r1Y + 7.5);
   doc.setFont("helvetica", "normal");
-  doc.text("Date", rx + rightW * 0.45 + 1.5, r1Y + 3.5);
+  doc.text("Date", midX + 1.5, r1Y + 3.5);
   doc.setFont("helvetica", "bold");
-  doc.text(formatDate(orderDate), rx + rightW * 0.45 + 1.5, r1Y + 7.5);
+  doc.text(formatDate(orderDate), midX + 1.5, r1Y + 7.5);
 
+  // Row 2: Delivery Note | Mode/Terms of Payment  (height: 8mm)
   const r2Y = r1Y + 10;
   doc.line(rx, r2Y, rx + rightW, r2Y);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
-  doc.text("Delivery Note", rx + 1.5, r2Y + 3.5);
-  doc.text("Mode/Terms of Payment", rx + rightW * 0.45 + 1.5, r2Y + 3.5);
+  doc.text("Delivery Note", rx + 1.5, r2Y + 4);
+  doc.text("Mode/Terms of Payment", midX + 1.5, r2Y + 4);
 
-  const r3Y = r2Y + 6;
+  // Row 3: NEFT/RTGS/CASH/CHQ boxes  (height: 8mm)
+  const r3Y = r2Y + 8;
   doc.line(rx, r3Y, rx + rightW, r3Y);
-  const payX = rx + rightW * 0.45 + 1.5;
+  const payX = midX + 2;
+  const boxW = 11;
+  const boxGap = 13;
   ["NEFT", "RTGS", "CASH", "CHQ"].forEach((lbl, i) => {
-    doc.rect(payX + i * 14, r3Y + 1, 12, 4, "S");
+    doc.rect(payX + i * boxGap, r3Y + 1.5, boxW, 4.5, "S");
     doc.setFontSize(6.5);
-    doc.text(lbl, payX + i * 14 + 6, r3Y + 4, { align: "center" });
+    doc.text(lbl, payX + i * boxGap + boxW / 2, r3Y + 4.8, { align: "center" });
   });
 
-  const r4Y = r3Y + 6;
+  // Row 4: Reference No. | Other References  (height: remaining to hH)
+  const r4Y = r3Y + 8;
   doc.line(rx, r4Y, rx + rightW, r4Y);
   doc.setFontSize(7);
-  doc.text("Reference No. & Date.", rx + 1.5, r4Y + 3.5);
-  doc.text("Other References", rx + rightW * 0.45 + 1.5, r4Y + 3.5);
+  doc.text("Reference No. & Date.", rx + 1.5, r4Y + 4);
+  doc.text("Other References", midX + 1.5, r4Y + 4);
 
   // ── BILLING TO ────────────────────────────────────────────────────────────
   let y = hY + hH;
@@ -339,12 +349,12 @@ async function buildInvoiceDoc(
     headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0], fontStyle: "bold", lineColor: [120, 120, 120], fontSize: 7.5 },
     columnStyles: {
       0: { halign: "center", cellWidth: 10 },
-      1: { halign: "left", cellWidth: 78 },
-      2: { halign: "center", cellWidth: 17 },
-      3: { halign: "center", cellWidth: 17 },
+      1: { halign: "left", cellWidth: 85 },
+      2: { halign: "center", cellWidth: 18 },
+      3: { halign: "center", cellWidth: 20 },
       4: { halign: "right", cellWidth: 20 },
       5: { halign: "center", cellWidth: 13 },
-      6: { halign: "right", cellWidth: 19 },
+      6: { halign: "right", cellWidth: 28 },
     },
     margin: { left: ML, right: MR },
   });
@@ -356,44 +366,36 @@ async function buildInvoiceDoc(
   const totalGst = orders.reduce((s, o) => s + o.gst, 0);
   const totalAmount = orders.reduce((s, o) => s + o.total, 0);
 
-  // TOTAL row
-  autoTable(doc, {
-    startY: y,
-    body: [[
-      { content: "", styles: { cellWidth: 10 } },
-      { content: "", styles: { cellWidth: 78 } },
-      { content: "", styles: { cellWidth: 17 } },
-      { content: "", styles: { cellWidth: 17 } },
-      { content: "TOTAL", colSpan: 2, styles: { halign: "right", fontStyle: "bold", fontSize: 8.5 } },
-      { content: totalSubtotal.toFixed(2), styles: { halign: "right", fontStyle: "bold", fontSize: 8.5, cellWidth: 19 } },
-    ]],
-    theme: "grid",
-    styles: { fontSize: 8, cellPadding: 2, lineColor: [120, 120, 120] },
-    margin: { left: ML, right: MR },
-  });
+  // ── TOTAL row ─────────────────────────────────────────────────────────────
+  const rowH = 8;
+  const amtColW = 35;   // Amount column width — wide enough for any value
+  const rightEdge = ML + CW;
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  y = (doc as any).lastAutoTable.finalY;
+  doc.setDrawColor(80, 80, 80);
+  doc.setLineWidth(0.3);
+  doc.rect(ML, y, CW, rowH, "S");
+  doc.setLineWidth(0.2);
+  doc.setDrawColor(120, 120, 120);
+  doc.line(rightEdge - amtColW, y, rightEdge - amtColW, y + rowH);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.text("TOTAL", rightEdge - amtColW - 3, y + rowH / 2 + 1.5, { align: "right" });
+  doc.text(totalSubtotal.toFixed(2), rightEdge - 3, y + rowH / 2 + 1.5, { align: "right" });
+  y += rowH;
 
-  // NET TOTAL row
-  autoTable(doc, {
-    startY: y,
-    body: [[
-      { content: "NET TOTAL", colSpan: 6, styles: { halign: "center", fontStyle: "bold", fontSize: 8.5 } },
-      { content: `Rs ${totalAmount.toFixed(2)}`, styles: { halign: "right", fontStyle: "bold", fontSize: 8.5, cellWidth: 19 } },
-    ]],
-    theme: "grid",
-    styles: { fontSize: 8, cellPadding: 2, lineColor: [120, 120, 120] },
-    columnStyles: {
-      0: { cellWidth: 10 }, 1: { cellWidth: 78 }, 2: { cellWidth: 17 },
-      3: { cellWidth: 17 }, 4: { cellWidth: 20 }, 5: { cellWidth: 13 },
-      6: { cellWidth: 19 },
-    },
-    margin: { left: ML, right: MR },
-  });
-
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  y = (doc as any).lastAutoTable.finalY;
+  // ── NET TOTAL row ─────────────────────────────────────────────────────────
+  const netRowH = 10;
+  doc.setDrawColor(80, 80, 80);
+  doc.setLineWidth(0.3);
+  doc.rect(ML, y, CW, netRowH, "S");
+  doc.setLineWidth(0.2);
+  doc.setDrawColor(120, 120, 120);
+  doc.line(rightEdge - amtColW, y, rightEdge - amtColW, y + netRowH);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(8.5);
+  doc.text("NET TOTAL", ML + (CW - amtColW) / 2, y + netRowH / 2 + 1.5, { align: "center" });
+  doc.text(`Rs ${totalAmount.toFixed(2)}`, rightEdge - 3, y + netRowH / 2 + 1.5, { align: "right" });
+  y += netRowH;
 
   // AMOUNT IN WORDS
   doc.setDrawColor(80, 80, 80);
@@ -410,11 +412,11 @@ async function buildInvoiceDoc(
 
   // ── BANK + GST TABLE ──────────────────────────────────────────────────────
   const bkW = 55;
-  const txW = 25;
-  const cgstW = 24;
-  const sgstW = 24;
-  const totW = CW - bkW - txW - cgstW - sgstW;
-  const botH = 32;
+  const txW = 22;
+  const cgstW = 26;
+  const sgstW = 26;
+  const totW = CW - bkW - txW - cgstW - sgstW; // 65mm for TOTAL AMOUNT col
+  const botH = 34;
   const cgst = totalGst / 2;
   const sgst = totalGst / 2;
 
@@ -424,46 +426,54 @@ async function buildInvoiceDoc(
 
   doc.setLineWidth(0.2);
   doc.setDrawColor(120, 120, 120);
-  doc.line(ML + bkW, y, ML + bkW, y + botH);
-  doc.line(ML + bkW + txW, y, ML + bkW + txW, y + botH);
-  doc.line(ML + bkW + txW + cgstW, y, ML + bkW + txW + cgstW, y + botH);
-  doc.line(ML + bkW + txW + cgstW + sgstW, y, ML + bkW + txW + cgstW + sgstW, y + botH);
-  doc.line(ML + bkW, y + 9, ML + CW, y + 9);
+  // vertical dividers
+  doc.line(ML + bkW,                          y, ML + bkW,                          y + botH);
+  doc.line(ML + bkW + txW,                    y, ML + bkW + txW,                    y + botH);
+  doc.line(ML + bkW + txW + cgstW,            y, ML + bkW + txW + cgstW,            y + botH);
+  doc.line(ML + bkW + txW + cgstW + sgstW,    y, ML + bkW + txW + cgstW + sgstW,    y + botH);
+  // header row divider
+  doc.line(ML + bkW, y + 10, ML + CW, y + 10);
 
+  // Header labels
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7);
-  doc.text("Bank Details", ML + 1.5, y + 5.5);
-  doc.text("TAXABLE", ML + bkW + 1.5, y + 4);
-  doc.text("AMOUNT", ML + bkW + 1.5, y + 7.5);
-  doc.text("GST", ML + bkW + txW + cgstW, y + 5.5, { align: "center" });
-  doc.text("TOTAL AMOUNT", ML + bkW + txW + cgstW + sgstW + totW / 2, y + 5.5, { align: "center" });
+  doc.text("Bank Details",  ML + 1.5, y + 6.5);
+  doc.text("TAXABLE",       ML + bkW + txW / 2, y + 4.5, { align: "center" });
+  doc.text("AMOUNT",        ML + bkW + txW / 2, y + 8,   { align: "center" });
+  // GST spans cgst+sgst columns — centred over both
+  doc.text("GST",           ML + bkW + txW + cgstW, y + 6.5, { align: "center" });
+  // TOTAL AMOUNT — centred in totW column
+  doc.text("TOTAL AMOUNT",  ML + bkW + txW + cgstW + sgstW + totW / 2, y + 6.5, { align: "center" });
 
-  doc.line(ML + bkW + txW, y + 9, ML + bkW + txW + cgstW + sgstW, y + 9);
-  doc.line(ML + bkW + txW + cgstW, y + 9, ML + bkW + txW + cgstW, y + botH);
+  // Sub-header divider + CGST/SGST labels
+  doc.line(ML + bkW + txW, y + 10, ML + bkW + txW + cgstW + sgstW, y + 10);
+  doc.line(ML + bkW + txW + cgstW, y + 10, ML + bkW + txW + cgstW, y + botH);
   doc.setFontSize(6.5);
-  doc.text("CGST", ML + bkW + txW + 1.5, y + 13);
-  doc.text("AMOUNT", ML + bkW + txW + 1.5, y + 16.5);
-  doc.text("SGST", ML + bkW + txW + cgstW + 1.5, y + 13);
-  doc.text("AMOUNT", ML + bkW + txW + cgstW + 1.5, y + 16.5);
-  doc.line(ML + bkW, y + 18, ML + CW, y + 18);
+  doc.text("CGST AMOUNT",  ML + bkW + txW + cgstW / 2,            y + 14, { align: "center" });
+  doc.text("SGST AMOUNT",  ML + bkW + txW + cgstW + sgstW / 2,    y + 14, { align: "center" });
+  doc.line(ML + bkW, y + 17, ML + CW, y + 17);
 
+  // Bank Name
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("Bank Name : ICICI Bank", ML + 1.5, y + 13.5);
+  doc.text("Bank Name : ICICI Bank", ML + 1.5, y + 14);
 
+  // Data values — all right-aligned within their column
+  const dataY = y + 25;
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
-  doc.text(totalSubtotal.toFixed(2), ML + bkW + txW - 1.5, y + 25, { align: "right" });
-  doc.text(cgst.toFixed(2), ML + bkW + txW + cgstW - 1.5, y + 25, { align: "right" });
-  doc.text(sgst.toFixed(2), ML + bkW + txW + cgstW + sgstW - 1.5, y + 25, { align: "right" });
+  doc.text(totalSubtotal.toFixed(2),  ML + bkW + txW - 2,                    dataY, { align: "right" });
+  doc.text(cgst.toFixed(2),           ML + bkW + txW + cgstW - 2,            dataY, { align: "right" });
+  doc.text(sgst.toFixed(2),           ML + bkW + txW + cgstW + sgstW - 2,    dataY, { align: "right" });
   doc.setFont("helvetica", "bold");
   doc.setFontSize(8);
-  doc.text(`\u20B9 ${totalAmount.toFixed(2)}`, ML + CW - 1.5, y + 25, { align: "right" });
+  // Total amount right-aligned inside TOTAL AMOUNT column, 3mm from right edge
+  doc.text(`Rs ${totalAmount.toFixed(2)}`,  ML + CW - 3, dataY, { align: "right" });
 
   y += botH;
 
   // ── FOOTER: bank account + terms + signature ──────────────────────────────
-  const ftH = 44;
+  const ftH = 52;   // increased from 44 to fit declaration text
   const termW = bkW + txW;
   const sigW = CW - termW;
 
@@ -474,34 +484,38 @@ async function buildInvoiceDoc(
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7.5);
-  doc.text("Account No. : 763305500096", ML + 1.5, y + 5);
-  doc.text("IFSC Code : ICIC0007633", ML + 1.5, y + 9.5);
-  doc.text("Branch Code/Name : 7633/Sama Branch", ML + 1.5, y + 14);
+  doc.text("Account No. : 763305500096",          ML + 1.5, y + 5);
+  doc.text("IFSC Code : ICIC0007633",              ML + 1.5, y + 10);
+  doc.text("Branch Code/Name : 7633/Sama Branch", ML + 1.5, y + 15);
 
   doc.setLineWidth(0.2);
   doc.setDrawColor(120, 120, 120);
-  doc.line(ML, y + 17, ML + termW, y + 17);
+  doc.line(ML, y + 19, ML + termW, y + 19);
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("Terms and Conditions :", ML + 1.5, y + 22);
+  doc.text("Terms and Conditions :", ML + 1.5, y + 24);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
-  doc.text("1) Any Problem in to be made in writing/mail within 2 days.", ML + 1.5, y + 27);
-  doc.text("2) Payment within 7 days.", ML + 1.5, y + 31.5);
+  doc.text("1) Any Problem in to be made in writing/mail within 2 days.", ML + 1.5, y + 29);
+  doc.text("2) Payment within 7 days.", ML + 1.5, y + 34);
 
-  doc.line(ML, y + 34, ML + termW, y + 34);
+  doc.line(ML, y + 37, ML + termW, y + 37);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("Declaration :", ML + 1.5, y + 38.5);
+  doc.text("Declaration :", ML + 1.5, y + 42);
   doc.setFont("helvetica", "normal");
   doc.setFontSize(6.5);
   const declaration = doc.splitTextToSize(
     "We declare that this invoice shows the actual price of the goods described and that all particulars are true and correct.",
     termW - 4
   );
-  doc.text(declaration, ML + 1.5, y + 42.5);
+  // render each line so it stays inside the box
+  declaration.slice(0, 3).forEach((line: string, i: number) => {
+    doc.text(line, ML + 1.5, y + 47 + i * 4);
+  });
 
+  // Right side
   const sigX = ML + termW;
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
@@ -509,17 +523,19 @@ async function buildInvoiceDoc(
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
   const taxWords = doc.splitTextToSize(numberToWords(totalGst), sigW - 4);
-  doc.text(taxWords.slice(0, 2), sigX + 1.5, y + 10);
+  taxWords.slice(0, 2).forEach((line: string, i: number) => {
+    doc.text(line, sigX + 1.5, y + 11 + i * 4.5);
+  });
 
   doc.setLineWidth(0.2);
-  doc.line(sigX, y + 20, ML + CW, y + 20);
+  doc.line(sigX, y + 24, ML + CW, y + 24);
   doc.setFont("helvetica", "bold");
   doc.setFontSize(7.5);
-  doc.text("for. KANHA GRAPHIC (PROPRIETOR)", sigX + 1.5, y + 25);
+  doc.text("for. KANHA GRAPHIC (PROPRIETOR)", sigX + 1.5, y + 30);
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(7);
-  doc.text("Authorised Signatory", ML + CW - 1.5, y + ftH - 2, { align: "right" });
+  doc.text("Authorised Signatory", ML + CW - 3, y + ftH - 3, { align: "right" });
 
   return doc;
 }
