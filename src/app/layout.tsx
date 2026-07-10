@@ -8,6 +8,7 @@ import { Providers } from "@/components/Providers";
 import { getSession } from "@/lib/auth";
 import { SITE } from "@/lib/constants";
 import { JsonLd } from "@/components/JsonLd";
+import { SplashScreen } from "@/components/SplashScreen";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -64,8 +65,8 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/icons/kg-logo.jpeg",
-    apple: "/icons/kg-logo.jpeg",
+    icon: "/icons/kg-logo-main.jpeg",
+    apple: "/icons/kg-logo-main.jpeg",
   },
 };
 
@@ -81,6 +82,7 @@ export default async function RootLayout({
       <body className="flex min-h-dvh flex-col overflow-x-hidden font-sans touch-manipulation antialiased">
         <JsonLd />
         <Providers>
+          <SplashScreen />
           <AppShell user={user}>{children}</AppShell>
           <MobileFooter />
           <Footer />
