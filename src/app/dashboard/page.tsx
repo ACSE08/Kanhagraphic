@@ -84,7 +84,7 @@ export default async function DashboardPage({
               {receiptOrders.length > 0 && (
                 <InvoiceButton
                   orders={receiptOrders}
-                  customer={{ name: session.name, email: session.email, phone: session.phone }}
+                  customer={{ name: session.name, email: session.email, phone: session.phone, companyName: session.companyName, address: session.address, gstNumber: session.gstNumber }}
                   label="Download PDF"
                   className="inline-flex items-center gap-1.5 rounded-lg bg-orange-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-orange-600 disabled:opacity-60 transition-colors"
                 />

@@ -213,7 +213,7 @@ export default async function OrderDetailPage({
                 <h3 className="text-sm font-semibold text-gray-400 uppercase">Invoice / Receipt</h3>
                 <InvoiceButton
                   orders={[order]}
-                  customer={{ name: session.name, email: session.email, phone: session.phone }}
+                  customer={{ name: session.name, email: session.email, phone: session.phone, companyName: session.companyName, address: session.address, gstNumber: session.gstNumber }}
                   label="Download PDF"
                 />
               </div>

@@ -8,6 +8,9 @@ const signupSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   phone: z.string().optional(),
+  companyName: z.string().optional(),
+  address: z.string().optional(),
+  gstNumber: z.string().optional(),
   password: z.string().min(6, "Password must be at least 6 characters"),
 });
 
@@ -23,7 +26,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const { name, email, phone, password } = parsed.data;
+    const { name, email, phone, companyName, address, gstNumber, password } = parsed.data;
 
     const existing = await prisma.user.findUnique({ where: { email } });
     if (existing) {
@@ -35,7 +38,15 @@ export async function POST(request: Request) {
 
     const hashed = await hashPassword(password);
     const user = await prisma.user.create({
-      data: { name, email, phone: phone || null, password: hashed },
+      data: {
+        name,
+        email,
+        phone: phone || null,
+        companyName: companyName || null,
+        address: address || null,
+        gstNumber: gstNumber || null,
+        password: hashed,
+      },
     });
 
     await createSession({
@@ -43,6 +54,9 @@ export async function POST(request: Request) {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      companyName: user.companyName,
+      address: user.address,
+      gstNumber: user.gstNumber,
     });
 
     const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();
@@ -50,12 +64,7 @@ export async function POST(request: Request) {
     const userAgent = request.headers.get("user-agent") || null;
 
     const loginEntry = await prisma.loginHistory.create({
-      data: {
-        userId: user.id,
-        email: user.email,
-        ipAddress,
-        userAgent,
-      },
+      data: { userId: user.id, email: user.email, ipAddress, userAgent },
     });
 
     await appendWorkbookEventSafely({

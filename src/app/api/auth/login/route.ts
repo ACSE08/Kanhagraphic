@@ -44,6 +44,9 @@ export async function POST(request: Request) {
       name: user.name,
       email: user.email,
       phone: user.phone,
+      companyName: user.companyName,
+      address: user.address,
+      gstNumber: user.gstNumber,
     });
 
     const forwardedFor = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim();

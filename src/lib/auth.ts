@@ -15,6 +15,9 @@ export interface SessionUser {
   name: string;
   email: string;
   phone: string | null;
+  companyName: string | null;
+  address: string | null;
+  gstNumber: string | null;
 }
 
 export async function hashPassword(password: string) {
@@ -31,6 +34,9 @@ export async function createSession(user: SessionUser) {
     name: user.name,
     email: user.email,
     phone: user.phone,
+    companyName: user.companyName,
+    address: user.address,
+    gstNumber: user.gstNumber,
   })
     .setProtectedHeader({ alg: "HS256" })
     .setIssuedAt()
@@ -64,6 +70,9 @@ export async function getSession(): Promise<SessionUser | null> {
       name: payload.name as string,
       email: payload.email as string,
       phone: (payload.phone as string) || null,
+      companyName: (payload.companyName as string) || null,
+      address: (payload.address as string) || null,
+      gstNumber: (payload.gstNumber as string) || null,
     };
   } catch {
     return null;
@@ -79,6 +88,6 @@ export async function requireSession() {
 export async function getUserFromDb(id: string) {
   return prisma.user.findUnique({
     where: { id },
-    select: { id: true, name: true, email: true, phone: true, createdAt: true },
+    select: { id: true, name: true, email: true, phone: true, companyName: true, address: true, gstNumber: true, createdAt: true },
   });
 }

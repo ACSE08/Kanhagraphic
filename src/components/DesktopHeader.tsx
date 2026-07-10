@@ -57,6 +57,12 @@ export function DesktopHeader({ user }: { user: SessionUser | null }) {
                 <User className="h-4 w-4" />
                 My Orders
               </Link>
+              <Link
+                href="/dashboard/profile"
+                className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white/80 transition-colors hover:bg-white/10 hover:text-white"
+              >
+                Profile
+              </Link>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-2 rounded-lg px-4 py-2 text-sm font-medium text-white/60 transition-colors hover:bg-white/10 hover:text-white"

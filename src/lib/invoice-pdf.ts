@@ -22,6 +22,9 @@ export interface InvoiceCustomer {
   name: string;
   email: string;
   phone?: string | null;
+  companyName?: string | null;
+  address?: string | null;
+  gstNumber?: string | null;
 }
 
 // Convert number to words (Indian numbering)
@@ -150,8 +153,8 @@ export async function generateInvoicePDF(
   // ── BILLING TO ────────────────────────────────────────────────────────────
   let y = 40;
   doc.setDrawColor(180, 180, 180);
-  doc.rect(marginL, y, contentW / 2 - 2, 36, "S");
-  doc.rect(marginL + contentW / 2, y, contentW / 2, 36, "S");
+  doc.rect(marginL, y, contentW / 2 - 2, 54, "S");
+  doc.rect(marginL + contentW / 2, y, contentW / 2, 54, "S");
 
   doc.setFontSize(8);
   doc.setFont("helvetica", "bold");
@@ -159,13 +162,29 @@ export async function generateInvoicePDF(
 
   doc.setFont("helvetica", "normal");
   doc.setFontSize(9);
-  doc.text(customer.name.toUpperCase(), marginL + 2, y + 11);
+  // Company name first (bold), then contact name
+  if (customer.companyName) {
+    doc.setFont("helvetica", "bold");
+    doc.text(customer.companyName.toUpperCase(), marginL + 2, y + 11);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(8);
+    doc.text(customer.name, marginL + 2, y + 16);
+  } else {
+    doc.setFont("helvetica", "bold");
+    doc.text(customer.name.toUpperCase(), marginL + 2, y + 11);
+    doc.setFont("helvetica", "normal");
+  }
   doc.setFontSize(8);
-  if (customer.email) doc.text(customer.email, marginL + 2, y + 16);
   if (customer.phone) doc.text(customer.phone, marginL + 2, y + 21);
-  doc.text("GST NO", marginL + 2, y + 28);
-  doc.text("State Name", marginL + 2, y + 33);
-  doc.text("PAN NO", marginL + 2, y + 38);
+  if (customer.email) doc.text(customer.email, marginL + 2, y + 26);
+  if (customer.address) {
+    const addrLines = doc.splitTextToSize(customer.address, contentW / 2 - 6);
+    doc.text(addrLines.slice(0, 2), marginL + 2, y + 31);
+  }
+  // GST / PAN on bottom of billing block
+  doc.text(`GST NO   ${customer.gstNumber ?? ""}`, marginL + 2, y + 41);
+  doc.text("State Name", marginL + 2, y + 46);
+  doc.text("PAN NO", marginL + 2, y + 51);
 
   // Right side of billing block
   const bRx = marginL + contentW / 2 + 2;
@@ -182,7 +201,7 @@ export async function generateInvoicePDF(
   doc.line(bRx, y + 26, marginL + contentW, y + 26);
 
   // ── ITEMS TABLE ───────────────────────────────────────────────────────────
-  y = 80;
+  y = 98;
   const tableBody = orders.map((order, idx) => [
     String(idx + 1).padStart(2, "0"),
     serviceLabel(order.serviceType, order.productName),
