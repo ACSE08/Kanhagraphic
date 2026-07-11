@@ -1,5 +1,5 @@
-export const DEFAULT_PAGE_WIDTH_MM = 302.2;
-export const DEFAULT_PAGE_HEIGHT_MM = 457.4;
+export const DEFAULT_PAGE_WIDTH_MM = 304.8;
+export const DEFAULT_PAGE_HEIGHT_MM = 457.2;
 
 export type SizeUnit = "mm" | "cm" | "inch" | "pt";
 
