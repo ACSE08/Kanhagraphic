@@ -183,7 +183,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
           <div className="mb-6 text-center lg:mb-10">
             <h2 className="mb-2 text-2xl font-bold text-[#0a1628] lg:text-4xl">
-              Our Products
+              Pictures Gallery
             </h2>
             <p className="text-sm text-gray-600 lg:text-base">
               Swipe or use arrows to explore our pharmaceutical printing range.
