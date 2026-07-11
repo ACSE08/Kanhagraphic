@@ -7,8 +7,8 @@ import { ChevronLeft, ChevronRight, ArrowRight, X } from "lucide-react";
 
 const slides = [
   {
-    src: "/images/products/product-1.jpeg",
-    alt: "Product 1",
+    src: "/images/products/Obj_1.jpeg",
+    alt: "Obj 1",
     badge: "Product 1",
     badgeColor: "bg-blue-600",
     title: "Premium Printing Product",
@@ -20,8 +20,8 @@ const slides = [
     accent: "from-blue-900/80",
   },
   {
-    src: "/images/products/product-2.jpeg",
-    alt: "Product 2",
+    src: "/images/products/Obj_2.jpeg",
+    alt: "Obj 2",
     badge: "Product 2",
     badgeColor: "bg-purple-600",
     title: "Pharmaceutical Print Quality",
@@ -33,8 +33,8 @@ const slides = [
     accent: "from-purple-900/80",
   },
   {
-    src: "/images/products/product-3.jpeg",
-    alt: "Product 3",
+    src: "/images/products/Obj_3.jpeg",
+    alt: "Obj 3",
     badge: "Product 3",
     badgeColor: "bg-emerald-600",
     title: "Precision Product Printing",
@@ -46,8 +46,8 @@ const slides = [
     accent: "from-emerald-900/80",
   },
   {
-    src: "/images/products/product-4.jpeg",
-    alt: "Product 4",
+    src: "/images/products/Obj_4.jpeg",
+    alt: "Obj 4",
     badge: "Product 4",
     badgeColor: "bg-amber-600",
     title: "Advanced Print Finish",
@@ -59,8 +59,8 @@ const slides = [
     accent: "from-amber-900/80",
   },
   {
-    src: "/images/products/product-5.jpeg",
-    alt: "Product 5",
+    src: "/images/products/Obj_5.jpeg",
+    alt: "Obj 5",
     badge: "Product 5",
     badgeColor: "bg-rose-600",
     title: "Color-Rich Product Output",
@@ -72,8 +72,8 @@ const slides = [
     accent: "from-rose-900/80",
   },
   {
-    src: "/images/products/product-6.jpeg",
-    alt: "Product 6",
+    src: "/images/products/Obj_6.jpeg",
+    alt: "Obj 6",
     badge: "Product 6",
     badgeColor: "bg-cyan-600",
     title: "Trusted Packaging Prints",
