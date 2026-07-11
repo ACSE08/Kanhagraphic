@@ -266,7 +266,7 @@ export function LabelSheetPlanner({
                 Array.from({ length: result.cols }).map((_, col) => (
                   <div
                     key={`${row}-${col}`}
-                    className="absolute border border-orange-500/50 bg-orange-400/75"
+                    className="absolute rounded-sm border border-orange-500/50 bg-orange-400/75"
                     style={{
                       left:   marginPx + col * (labelWPx + gapPx),
                       top:    marginPx + row * (labelHPx + gapPx),
