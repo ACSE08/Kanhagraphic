@@ -261,21 +261,33 @@ export function LabelSheetPlanner({
                 }}
               />
 
-              {/* Label cells — absolutely positioned to exact scale */}
-              {Array.from({ length: result.rows }).map((_, row) =>
-                Array.from({ length: result.cols }).map((_, col) => (
-                  <div
-                    key={`${row}-${col}`}
-                    className="absolute rounded-sm border border-orange-500/50 bg-orange-400/75"
-                    style={{
-                      left:   marginPx + col * (labelWPx + gapPx),
-                      top:    marginPx + row * (labelHPx + gapPx),
-                      width:  labelWPx,
-                      height: labelHPx,
-                    }}
-                  />
-                ))
-              )}
+              {/* Label cells — absolutely positioned to exact scale, centred on sheet */}
+              {(() => {
+                // Total grid size in px
+                const gridW = result.cols * labelWPx + (result.cols - 1) * gapPx;
+                const gridH = result.rows * labelHPx + (result.rows - 1) * gapPx;
+                // Usable area inside margin
+                const usableW = PREVIEW_W_PX - marginPx * 2;
+                const usableH = PREVIEW_H_PX - marginPx * 2;
+                // Extra whitespace split equally on both sides
+                const offsetX = marginPx + Math.max(0, (usableW - gridW) / 2);
+                const offsetY = marginPx + Math.max(0, (usableH - gridH) / 2);
+
+                return Array.from({ length: result.rows }).map((_, row) =>
+                  Array.from({ length: result.cols }).map((_, col) => (
+                    <div
+                      key={`${row}-${col}`}
+                      className="absolute rounded-sm border border-orange-500/50 bg-orange-400/75"
+                      style={{
+                        left:   offsetX + col * (labelWPx + gapPx),
+                        top:    offsetY + row * (labelHPx + gapPx),
+                        width:  labelWPx,
+                        height: labelHPx,
+                      }}
+                    />
+                  ))
+                );
+              })()}
             </div>
           </div>
 
