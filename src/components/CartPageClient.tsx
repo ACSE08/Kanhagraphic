@@ -30,14 +30,16 @@ export function CartPageClient({ userId, customer }: CartPageClientProps) {
   const [invoiceLoading, setInvoiceLoading] = useState(false);
   const [pdfUrl, setPdfUrl] = useState<string | null>(null);
   const [pdfFilename, setPdfFilename] = useState("Invoice.pdf");
-  const blobRef = useRef<Blob | null>(null);
+  // Track previous blob URL in a ref so we can revoke it without the useEffect
+  // dependency on pdfUrl (which caused immediate revocation of the new URL)
+  const prevPdfUrl = useRef<string | null>(null);
 
-  // Revoke blob URL on unmount to avoid memory leaks
+  // Revoke blob URL only on unmount
   useEffect(() => {
     return () => {
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+      if (prevPdfUrl.current) URL.revokeObjectURL(prevPdfUrl.current);
     };
-  }, [pdfUrl]);
+  }, []);
 
   // Convert cart items → InvoiceOrder shape for the PDF generator
   const invoiceOrders: InvoiceOrder[] = items.map((item, idx) => ({
@@ -64,10 +66,13 @@ export function CartPageClient({ userId, customer }: CartPageClientProps) {
     try {
       const { generateInvoiceBlob } = await import("@/lib/invoice-pdf");
       const { blob, filename } = await generateInvoiceBlob(invoiceOrders, customer);
-      // Revoke previous URL
-      if (pdfUrl) URL.revokeObjectURL(pdfUrl);
+      // Revoke the previous blob URL before creating a new one
+      if (prevPdfUrl.current) {
+        URL.revokeObjectURL(prevPdfUrl.current);
+        prevPdfUrl.current = null;
+      }
       const url = URL.createObjectURL(blob);
-      blobRef.current = blob;
+      prevPdfUrl.current = url;
       setPdfUrl(url);
       setPdfFilename(filename);
       setModalOpen(true);

@@ -1,9 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Loader2, Package, ShoppingBag, CheckCircle } from "lucide-react";
+import { Loader2, Package, ShoppingBag, CheckCircle, ArrowRight } from "lucide-react";
 import {
   formatINR,
   SERVICES,
@@ -34,6 +34,8 @@ export function OrderForm({
 }) {
   const router = useRouter();
   const { addItem } = useCart();
+  const mountedRef = useRef(true);
+
   const [serviceType, setServiceType] = useState<ServiceType>(
     (defaultService as ServiceType) || "blister-strips-sachet"
   );
@@ -41,33 +43,38 @@ export function OrderForm({
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState(100);
   const [notes, setNotes] = useState("");
-  const [loading, setLoading] = useState(false);
+
+  // Separate loading states for cart vs direct-submit
   const [cartLoading, setCartLoading] = useState(false);
+  const [submitLoading, setSubmitLoading] = useState(false);
   const [cartAdded, setCartAdded] = useState(false);
   const [error, setError] = useState("");
 
   const selectedService = SERVICES.find((s) => s.id === serviceType);
-  const isLabel = serviceType === "label-printing";
+  const isLabel   = serviceType === "label-printing";
   const isBlister = serviceType === "blister-strips-sachet";
-  const isCarton = serviceType === "carton-printing";
-  const isInsert = serviceType === "insert-printing";
+  const isCarton  = serviceType === "carton-printing";
+  const isInsert  = serviceType === "insert-printing";
   const isBelowMoq = !isLabel && !!selectedService?.moq && quantity < selectedService.moq;
 
-  const price: PriceBreakdown | null = isBlister ? calculateBlisterPrice(quantity) : null;
-  const cartonPrice: PriceBreakdown | null = isCarton ? calculateCartonPrice(quantity) : null;
-  const insertPrice: PriceBreakdown | null = isInsert && insertType ? calculateInsertPrice(quantity, insertType) : null;
+  const price: PriceBreakdown | null       = isBlister ? calculateBlisterPrice(quantity) : null;
+  const cartonPrice: PriceBreakdown | null = isCarton  ? calculateCartonPrice(quantity)  : null;
+  const insertPrice: PriceBreakdown | null = isInsert && insertType
+    ? calculateInsertPrice(quantity, insertType) : null;
 
+  // Reset per-service fields when service changes
   function handleServiceChange(value: ServiceType) {
     setServiceType(value);
-    onServiceChange?.(value);
+    setInsertType(null);
     setError("");
+    onServiceChange?.(value);
   }
 
   function getOrderQuantity() {
     if (isLabel && labelLayoutJson) {
       try {
         const layout = JSON.parse(labelLayoutJson);
-        return layout.totalLabels ?? 0;
+        return Number(layout.totalLabels) || 0;
       } catch {
         return 0;
       }
@@ -75,65 +82,52 @@ export function OrderForm({
     return quantity;
   }
 
-  async function handleAddToCart(): Promise<boolean> {
-    setError("");
-    setCartLoading(true);
-
-    // Product name is required for all non-label services
-    if (!isLabel && !productName.trim()) {
-      setCartLoading(false);
-      setError("Please enter a product name.");
-      return false;
-    }
-
+  // Centralised validation — returns error string or null
+  function validate(): string | null {
+    if (!isLabel && !productName.trim()) return "Please enter a product name.";
     const orderQty = getOrderQuantity();
-    if (!isLabel && selectedService?.moq && orderQty < selectedService.moq) {
-      setCartLoading(false);
-      setError(`Minimum order quantity for ${selectedService.name} is ${selectedService.moq}.`);
-      return false;
-    }
-
-    if (isLabel && !labelLayoutJson) {
-      setCartLoading(false);
-      setError("Please configure the label layout before adding to cart.");
-      return false;
-    }
-
-    if (isInsert && !insertType) {
-      setCartLoading(false);
-      setError("Please select an insert type (Coloured or B&W).");
-      return false;
-    }
-
-    const result = addItem({
-      serviceType,
-      productName,
-      quantity: orderQty,
-      notes,
-      labelLayout: isLabel ? labelLayoutJson : null,
-      insertType: isInsert ? insertType ?? undefined : undefined,
-    });
-
-    setCartLoading(false);
-
-    if (!result.ok) {
-      setError(result.error);
-      return false;
-    }
-
-    // Flash green tick, then immediately reset + scroll
-    setCartAdded(true);
-    setTimeout(() => {
-      setProductName("");
-      setNotes("");
-      if (!isLabel) setQuantity(100);
-      setCartAdded(false);
-      setError("");
-      window.scrollTo({ top: 0, behavior: "smooth" });
-      router.refresh();
-    }, 400);
-    return true;
+    if (isLabel && !labelLayoutJson) return "Please configure the label layout before adding to cart.";
+    if (isInsert && !insertType) return "Please select an insert type (Coloured or B&W).";
+    if (!isLabel && selectedService?.moq && orderQty < selectedService.moq)
+      return `Minimum order quantity for ${selectedService.name} is ${selectedService.moq}.`;
+    return null;
   }
+
+  const handleAddToCart = useCallback(async (): Promise<boolean> => {
+    setError("");
+    const validationError = validate();
+    if (validationError) { setError(validationError); return false; }
+
+    setCartLoading(true);
+    try {
+      const result = addItem({
+        serviceType,
+        productName,
+        quantity: getOrderQuantity(),
+        notes,
+        labelLayout: isLabel ? labelLayoutJson : null,
+        insertType: isInsert ? (insertType ?? undefined) : undefined,
+      });
+
+      if (!result.ok) { setError(result.error); return false; }
+
+      setCartAdded(true);
+      setTimeout(() => {
+        if (!mountedRef.current) return;
+        setProductName("");
+        setNotes("");
+        if (!isLabel) setQuantity(100);
+        setCartAdded(false);
+        setError("");
+        window.scrollTo({ top: 0, behavior: "smooth" });
+        router.refresh();
+      }, 600);
+      return true;
+    } finally {
+      setCartLoading(false);
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceType, productName, quantity, notes, insertType, isLabel, isInsert, labelLayoutJson]);
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -144,102 +138,89 @@ export function OrderForm({
       return;
     }
 
-    if (isLabel && !labelLayoutJson) {
-      setError("Please configure label & page size in the planner.");
-      return;
-    }
+    const validationError = validate();
+    if (validationError) { setError(validationError); return; }
 
-    if (isInsert && !insertType) {
-      setError("Please select an insert type (Coloured or B&W).");
-      return;
-    }
-
-    const orderQty = getOrderQuantity();
-    if (!isLabel && selectedService?.moq && orderQty < selectedService.moq) {
-      setError(`Minimum order quantity for ${selectedService.name} is ${selectedService.moq}.`);
-      return;
-    }
-
-    setLoading(true);
+    setSubmitLoading(true);
     try {
       const formData = new FormData();
       formData.append("serviceType", serviceType);
       formData.append("productName", productName.trim());
-      formData.append("quantity", String(orderQty));
+      formData.append("quantity", String(getOrderQuantity()));
       formData.append("notes", notes);
       if (isInsert && insertType) formData.append("insertType", insertType);
-      if (labelLayoutJson) formData.append("labelLayout", labelLayoutJson);
+      if (labelLayoutJson)        formData.append("labelLayout", labelLayoutJson);
 
-      const res = await fetch("/api/orders", { method: "POST", body: formData });
+      const res  = await fetch("/api/orders", { method: "POST", body: formData });
       const data = await res.json();
 
-      if (!res.ok) {
-        setError(data.error || "Failed to place order");
-        return;
-      }
+      if (!res.ok) { setError(data.error || "Failed to place order"); return; }
 
       router.push(`/dashboard/orders/${data.order.id}`);
     } catch {
       setError("Something went wrong. Please try again.");
     } finally {
-      setLoading(false);
+      setSubmitLoading(false);
     }
   }
 
-  // ── Shared button block used in both modes ────────────────────────────────
-  function renderButtons(isFormSubmit = true) {
+  // ── Button block ──────────────────────────────────────────────────────────
+  function renderButtons() {
+    const busy = cartLoading || submitLoading;
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
+        {/* Add to Cart */}
         <button
           type="button"
           onClick={handleAddToCart}
-          disabled={cartLoading || cartAdded}
-          className={`relative flex items-center justify-center gap-2 rounded-xl border-2 py-4 font-semibold transition-all duration-300 ${
-            cartAdded
+          disabled={busy || cartAdded}
+          className={`relative flex items-center justify-center gap-2 rounded-xl border-2 py-4 font-semibold transition-all duration-300
+            ${cartAdded
               ? "border-green-500 bg-green-500 text-white scale-95"
-              : "border-orange-500 text-orange-600 hover:bg-orange-50 active:scale-95"
-          } disabled:cursor-not-allowed`}
+              : "border-orange-500 text-orange-600 hover:bg-orange-50 active:scale-95"}
+            disabled:cursor-not-allowed`}
         >
-          {cartLoading ? (
-            <Loader2 className="h-5 w-5 animate-spin" />
-          ) : cartAdded ? (
-            <CheckCircle className="h-5 w-5" />
-          ) : (
-            <ShoppingBag className="h-5 w-5" />
-          )}
-          {cartLoading ? "Adding..." : cartAdded ? "Added to Cart ✓" : "Add to Cart"}
+          {cartLoading ? <Loader2 className="h-5 w-5 animate-spin" /> :
+           cartAdded   ? <CheckCircle className="h-5 w-5" /> :
+                         <ShoppingBag className="h-5 w-5" />}
+          {cartLoading ? "Adding…" : cartAdded ? "Added to Cart ✓" : "Add to Cart"}
         </button>
 
+        {/* Go to Cart */}
         <button
           type="button"
           onClick={() => router.push("/cart")}
-          disabled={cartLoading}
-          className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-lg text-white transition-all duration-200 hover:bg-orange-600 active:scale-95 disabled:opacity-50"
+          disabled={busy}
+          className="flex items-center justify-center gap-2 rounded-xl bg-orange-500 py-4 font-semibold text-white transition-all duration-200 hover:bg-orange-600 active:scale-95 disabled:opacity-50"
         >
+          <ArrowRight className="h-5 w-5" />
           Go to Cart
         </button>
       </div>
     );
   }
 
-  // buttonsOnly mode — for label service step 4
+  // ── buttonsOnly mode (label step 4) ───────────────────────────────────────
   if (buttonsOnly) {
     return (
       <div className="space-y-4">
         {error && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {error}
+          </div>
         )}
-        {renderButtons(false)}
+        {renderButtons()}
       </div>
     );
   }
 
+  // ── Full form ─────────────────────────────────────────────────────────────
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Added to cart toast banner */}
+      {/* Cart success toast */}
       <div
-        className={`overflow-hidden transition-all duration-200 ease-in-out ${
-          cartAdded ? "max-h-20 opacity-100" : "max-h-0 opacity-0"
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          cartAdded ? "max-h-20 opacity-100" : "max-h-0 opacity-0 pointer-events-none"
         }`}
       >
         <div className="flex items-center gap-3 rounded-xl border border-green-200 bg-green-50 px-4 py-3 text-sm font-medium text-green-700">
@@ -248,20 +229,18 @@ export function OrderForm({
         </div>
       </div>
 
+      {/* Login nudge */}
       {!userId && (
         <div className="rounded-xl border border-orange-200 bg-orange-50 p-4 text-sm text-orange-800">
           Please{" "}
-          <Link href="/login?redirect=/order" className="font-semibold underline">
-            login
-          </Link>{" "}
+          <Link href="/login?redirect=/order" className="font-semibold underline">login</Link>{" "}
           or{" "}
-          <Link href="/signup?redirect=/order" className="font-semibold underline">
-            sign up
-          </Link>{" "}
+          <Link href="/signup?redirect=/order" className="font-semibold underline">sign up</Link>{" "}
           to place an order. You can still add items to cart and preview pricing.
         </div>
       )}
 
+      {/* Service selector */}
       <div>
         <label className="mb-2 block text-sm font-medium text-gray-700">Select Service</label>
         <select
@@ -270,9 +249,7 @@ export function OrderForm({
           className="w-full rounded-xl border border-gray-200 bg-white px-4 py-3 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
         >
           {SERVICES.map((s) => (
-            <option key={s.id} value={s.id}>
-              {s.name}
-            </option>
+            <option key={s.id} value={s.id}>{s.name}</option>
           ))}
         </select>
         {selectedService && (
@@ -280,6 +257,7 @@ export function OrderForm({
         )}
       </div>
 
+      {/* Product name */}
       <div className="rounded-xl border border-orange-200 bg-orange-50/60 p-4">
         <div className="mb-3 flex items-center gap-2">
           <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-orange-500 text-white">
@@ -287,7 +265,7 @@ export function OrderForm({
           </div>
           <div>
             <label htmlFor="productName" className="text-sm font-semibold text-[#0a1628]">
-              Product Name
+              Product Name {!isLabel && <span className="text-orange-500">*</span>}
             </label>
             <p className="text-xs text-gray-500">Enter your medicine or product name</p>
           </div>
@@ -302,6 +280,7 @@ export function OrderForm({
         />
       </div>
 
+      {/* Quantity */}
       {!isLabel && (
         <div>
           <label className="mb-2 block text-sm font-medium text-gray-700">
@@ -311,7 +290,10 @@ export function OrderForm({
             type="number"
             min={0}
             value={quantity}
-            onChange={(e) => setQuantity(Math.max(0, parseInt(e.target.value) || 0))}
+            onChange={(e) => {
+              const v = parseInt(e.target.value, 10);
+              setQuantity(isNaN(v) ? 0 : Math.max(0, v));
+            }}
             className="w-full rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
           />
           {isBelowMoq && (
@@ -322,18 +304,17 @@ export function OrderForm({
         </div>
       )}
 
+      {/* Insert type radio buttons */}
       {isInsert && (
         <div>
           <label className="mb-3 block text-sm font-medium text-gray-700">
             Insert Type <span className="text-orange-500">*</span>
           </label>
           <div className="grid grid-cols-2 gap-3">
-            {(
-              [
-                { value: "coloured", label: "Coloured", rate: "₹12/piece" },
-                { value: "bw", label: "B&W", rate: "₹3/piece" },
-              ] as const
-            ).map(({ value, label, rate }) => (
+            {([
+              { value: "coloured", label: "Coloured", rate: "₹12/piece" },
+              { value: "bw",       label: "B&W",      rate: "₹3/piece"  },
+            ] as const).map(({ value, label, rate }) => (
               <label
                 key={value}
                 className={`flex cursor-pointer items-center gap-3 rounded-xl border-2 px-4 py-3 transition-colors ${
@@ -349,7 +330,6 @@ export function OrderForm({
                   checked={insertType === value}
                   onChange={() => setInsertType(value)}
                   className="accent-orange-500"
-                  required
                 />
                 <div>
                   <p className="text-sm font-semibold text-gray-800">{label}</p>
@@ -361,140 +341,128 @@ export function OrderForm({
         </div>
       )}
 
+      {/* Price summaries */}
       {isBlister && price && quantity > 0 && price.subtotal > 0 && (
-        <div className="space-y-2 rounded-xl bg-[#0a1628] p-5 text-white">
-          {productName.trim() && (
-            <div className="flex justify-between gap-4 border-b border-white/10 pb-2 text-sm">
-              <span className="shrink-0 text-white/60">Product</span>
-              <span className="text-right font-medium text-orange-300">{productName.trim()}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">Subtotal</span>
-            <span>{formatINR(price.subtotal)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">GST (18%)</span>
-            <span>{formatINR(price.gst)}</span>
-          </div>
-          <div className="flex justify-between border-t border-white/20 pt-2 text-lg font-bold">
-            <span>Estimated Total</span>
-            <span className="text-orange-400">{formatINR(price.total)}</span>
-          </div>
-        </div>
+        <PriceSummary
+          productName={productName}
+          rows={[
+            { label: "Subtotal", value: formatINR(price.subtotal) },
+            { label: "GST (18%)", value: formatINR(price.gst) },
+          ]}
+          total={formatINR(price.total)}
+        />
       )}
 
       {isCarton && !isBelowMoq && cartonPrice && quantity > 0 && cartonPrice.subtotal > 0 && (
-        <div className="space-y-2 rounded-xl bg-[#0a1628] p-5 text-white">
-          {productName.trim() && (
-            <div className="flex justify-between gap-4 border-b border-white/10 pb-2 text-sm">
-              <span className="shrink-0 text-white/60">Product</span>
-              <span className="text-right font-medium text-orange-300">{productName.trim()}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">Rate Slab</span>
-            <span>{cartonPrice.tier}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">Unit Price</span>
-            <span>{cartonPrice.unitPrice ? formatINR(cartonPrice.unitPrice) : "—"}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">Subtotal</span>
-            <span>{formatINR(cartonPrice.subtotal)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">GST (18%)</span>
-            <span>{formatINR(cartonPrice.gst)}</span>
-          </div>
-          <div className="flex justify-between border-t border-white/20 pt-2 text-lg font-bold">
-            <span>Estimated Total</span>
-            <span className="text-orange-400">{formatINR(cartonPrice.total)}</span>
-          </div>
-        </div>
+        <PriceSummary
+          productName={productName}
+          rows={[
+            { label: "Rate Slab",  value: cartonPrice.tier },
+            { label: "Unit Price", value: cartonPrice.unitPrice ? formatINR(cartonPrice.unitPrice) : "—" },
+            { label: "Subtotal",   value: formatINR(cartonPrice.subtotal) },
+            { label: "GST (18%)", value: formatINR(cartonPrice.gst) },
+          ]}
+          total={formatINR(cartonPrice.total)}
+        />
       )}
 
       {isInsert && insertPrice && quantity > 0 && insertPrice.subtotal > 0 && (
-        <div className="space-y-2 rounded-xl bg-[#0a1628] p-5 text-white">
-          {productName.trim() && (
-            <div className="flex justify-between gap-4 border-b border-white/10 pb-2 text-sm">
-              <span className="shrink-0 text-white/60">Product</span>
-              <span className="text-right font-medium text-orange-300">{productName.trim()}</span>
-            </div>
-          )}
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">Insert Type</span>
-            <span>{insertPrice.tier}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">Unit Price</span>
-            <span>{insertPrice.unitPrice ? formatINR(insertPrice.unitPrice) : "—"}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">Subtotal</span>
-            <span>{formatINR(insertPrice.subtotal)}</span>
-          </div>
-          <div className="flex justify-between text-sm">
-            <span className="text-white/60">GST (18%)</span>
-            <span>{formatINR(insertPrice.gst)}</span>
-          </div>
-          <div className="flex justify-between border-t border-white/20 pt-2 text-lg font-bold">
-            <span>Estimated Total</span>
-            <span className="text-orange-400">{formatINR(insertPrice.total)}</span>
-          </div>
-        </div>
+        <PriceSummary
+          productName={productName}
+          rows={[
+            { label: "Insert Type", value: insertPrice.tier },
+            { label: "Unit Price",  value: insertPrice.unitPrice ? formatINR(insertPrice.unitPrice) : "—" },
+            { label: "Subtotal",    value: formatINR(insertPrice.subtotal) },
+            { label: "GST (18%)",  value: formatINR(insertPrice.gst) },
+          ]}
+          total={formatINR(insertPrice.total)}
+        />
       )}
 
       {isBlister && quantity === 0 && (
-        <div className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-600">
+        <p className="rounded-xl border border-gray-200 bg-gray-50 p-4 text-sm text-gray-500">
           Enter quantity above 0 to see blister/strip pricing estimate.
-        </div>
+        </p>
       )}
 
+      {/* Pricing table */}
       {isBlister && (
         <div className="overflow-hidden rounded-xl border border-orange-200 bg-white">
           <div className="border-b border-orange-100 bg-orange-50 px-4 py-3">
-            <h3 className="text-sm font-bold text-[#0a1628]">Blister / Strips / Sachet Pricing Table</h3>
-            <p className="mt-1 text-xs text-gray-600">GST extra as applicable.</p>
+            <h3 className="text-sm font-bold text-[#0a1628]">Blister / Strips / Sachet Pricing</h3>
+            <p className="mt-0.5 text-xs text-gray-500">GST extra as applicable.</p>
           </div>
-          <div className="overflow-x-auto">
-            <table className="min-w-full text-sm">
-              <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
-                <tr>
-                  <th className="px-4 py-3 font-semibold">Quantity Range</th>
-                  <th className="px-4 py-3 font-semibold">Rate</th>
+          <table className="min-w-full text-sm">
+            <thead className="bg-gray-50 text-left text-xs uppercase tracking-wide text-gray-500">
+              <tr>
+                <th className="px-4 py-3 font-semibold">Quantity Range</th>
+                <th className="px-4 py-3 font-semibold">Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              {PRICING_TABLE.map((row) => (
+                <tr key={row.range} className="border-t border-gray-100 hover:bg-orange-50/40 transition-colors">
+                  <td className="px-4 py-2.5 text-gray-700">{row.range}</td>
+                  <td className="px-4 py-2.5 font-semibold text-[#0a1628]">{row.rate}</td>
                 </tr>
-              </thead>
-              <tbody>
-                {PRICING_TABLE.map((row) => (
-                  <tr key={row.range} className="border-t border-gray-100">
-                    <td className="px-4 py-2.5 text-gray-700">{row.range}</td>
-                    <td className="px-4 py-2.5 font-medium text-[#0a1628]">{row.rate}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+              ))}
+            </tbody>
+          </table>
         </div>
       )}
 
+      {/* Notes */}
       <div>
         <label className="mb-2 block text-sm font-medium text-gray-700">Additional Notes</label>
         <textarea
           value={notes}
           onChange={(e) => setNotes(e.target.value)}
           rows={3}
-          placeholder="Size, finish, varnish type, delivery preferences..."
+          placeholder="Size, finish, varnish type, delivery preferences…"
           className="w-full resize-none rounded-xl border border-gray-200 px-4 py-3 outline-none focus:border-orange-500 focus:ring-2 focus:ring-orange-500"
         />
       </div>
 
+      {/* Error */}
       {error && (
-        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+          {error}
+        </div>
       )}
 
-      {!hideButtons && renderButtons(true)}
+      {!hideButtons && renderButtons()}
     </form>
+  );
+}
+
+// ── Shared price summary card ─────────────────────────────────────────────────
+function PriceSummary({
+  productName,
+  rows,
+  total,
+}: {
+  productName: string;
+  rows: { label: string; value: string }[];
+  total: string;
+}) {
+  return (
+    <div className="space-y-2 rounded-xl bg-[#0a1628] p-5 text-white">
+      {productName.trim() && (
+        <div className="flex justify-between gap-4 border-b border-white/10 pb-2 text-sm">
+          <span className="shrink-0 text-white/60">Product</span>
+          <span className="text-right font-medium text-orange-300">{productName.trim()}</span>
+        </div>
+      )}
+      {rows.map(({ label, value }) => (
+        <div key={label} className="flex justify-between text-sm">
+          <span className="text-white/60">{label}</span>
+          <span>{value}</span>
+        </div>
+      ))}
+      <div className="flex justify-between border-t border-white/20 pt-2 text-lg font-bold">
+        <span>Estimated Total</span>
+        <span className="text-orange-400">{total}</span>
+      </div>
+    </div>
   );
 }
