@@ -20,6 +20,7 @@ import { useCart } from "@/context/CartContext";
 export function OrderForm({
   userId,
   defaultService,
+  serviceType: controlledServiceType,
   onServiceChange,
   labelLayoutJson = "",
   hideButtons = false,
@@ -27,6 +28,7 @@ export function OrderForm({
 }: {
   userId?: string;
   defaultService?: string;
+  serviceType?: ServiceType;
   onServiceChange?: (service: ServiceType) => void;
   labelLayoutJson?: string;
   hideButtons?: boolean;
@@ -36,9 +38,11 @@ export function OrderForm({
   const { addItem } = useCart();
   const mountedRef = useRef(true);
 
-  const [serviceType, setServiceType] = useState<ServiceType>(
+  // If parent passes serviceType as a controlled prop use it, otherwise manage internally
+  const [internalServiceType, setInternalServiceType] = useState<ServiceType>(
     (defaultService as ServiceType) || "blister-strips-sachet"
   );
+  const serviceType = controlledServiceType ?? internalServiceType;
   const [insertType, setInsertType] = useState<InsertPrintType | null>(null);
   const [productName, setProductName] = useState("");
   const [quantity, setQuantity] = useState(100);
@@ -64,7 +68,7 @@ export function OrderForm({
 
   // Reset per-service fields when service changes
   function handleServiceChange(value: ServiceType) {
-    setServiceType(value);
+    setInternalServiceType(value);
     setInsertType(null);
     setError("");
     onServiceChange?.(value);
