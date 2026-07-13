@@ -364,7 +364,7 @@ export function OrderForm({
             { label: "Rate Slab",  value: cartonPrice.tier },
             { label: "Unit Price", value: cartonPrice.unitPrice ? formatINR(cartonPrice.unitPrice) : "—" },
             { label: "Subtotal",   value: formatINR(cartonPrice.subtotal) },
-            { label: "GST (18%)", value: formatINR(cartonPrice.gst) },
+            { label: "GST (5%)",   value: formatINR(cartonPrice.gst) },
           ]}
           total={formatINR(cartonPrice.total)}
         />

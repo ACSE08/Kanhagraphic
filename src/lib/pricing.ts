@@ -95,7 +95,7 @@ export function calculateCartonPrice(quantity: number): PriceBreakdown {
   }
 
   const subtotal = quantity * unitPrice;
-  const gst = Math.round(subtotal * GST_RATE);
+  const gst = Math.round(subtotal * 0.05);
   const total = subtotal + gst;
 
   return { quantity, unitPrice, subtotal, gst, total, tier };
