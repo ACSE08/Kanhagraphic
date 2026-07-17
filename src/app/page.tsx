@@ -75,8 +75,7 @@ const PROCESS_STEPS = [
   { step: "01", title: "Place Your Order", desc: "Select your service, enter product details, and submit your order online." },
   { step: "02", title: "Upload Design File", desc: "Send your Corel Draw file via WhatsApp or email for processing." },
   { step: "03", title: "Proof Approval", desc: "We send a digital proof on WhatsApp. Printing begins only after your approval." },
-  { step: "04", title: "Make Payment", desc: "100% advance via UPI, NEFT, or IMPS after proof approval." },
-  { step: "05", title: "Print & Deliver", desc: "Your order is printed, quality-checked, and dispatched within 2-3 days." },
+  { step: "04", title: "Print & Deliver", desc: "Your order is printed, quality-checked, and dispatched within 2-3 days." },
 ];
 
 const TESTIMONIALS = [
@@ -423,10 +422,10 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center lg:mb-16">
             <span className="mb-3 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">How It Works</span>
-            <h2 className="mb-3 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">Simple 5-Step Process</h2>
+            <h2 className="mb-3 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">Simple 4-Step Process</h2>
             <p className="mx-auto max-w-xl text-sm text-gray-600 lg:text-base">From order to delivery in just 2-3 days.</p>
           </div>
-          <div className="relative grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="relative grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PROCESS_STEPS.map(({ step, title, desc }, i) => (
               <div key={step} className="relative text-center">
                 {i < PROCESS_STEPS.length - 1 && (
