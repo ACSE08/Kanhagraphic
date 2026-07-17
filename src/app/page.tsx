@@ -157,18 +157,21 @@ export default function HomePage() {
               Gujarat&apos;s premier pharmaceutical printing house — cartons, labels, blisters &amp; inserts.
               Premium quality, 2-3 day delivery, MOQ just 10 pieces.
             </p>
-            <div className="flex flex-wrap gap-3">
-              <Link href="/order" className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-8 py-4 font-bold shadow-lg shadow-orange-500/30 transition-all hover:bg-orange-600 hover:shadow-orange-500/50">
-                Place Order <ArrowRight className="h-5 w-5" />
-              </Link>
-              <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-8 py-4 font-semibold backdrop-blur-sm transition-all hover:bg-white/20">
-                <MessageCircle className="h-5 w-5" /> WhatsApp Us
-              </a>
-              <a href={`tel:${SITE.phoneRaw}`}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-8 py-4 font-semibold transition-all hover:bg-white/20">
-                <Phone className="h-5 w-5" /> Call Now
-              </a>
+            {/* About Us snippet in place of buttons */}
+            <div className="mb-8 grid grid-cols-2 gap-3 max-w-xl">
+              {[
+                "Expert pharmaceutical printers since 2015",
+                "300/350 GSM FBB sheets",
+                "UV Gloss &amp; Aqua Matt varnish",
+                "No die cost for small quantities",
+                "MOQ just 10 pieces for carton",
+                "Fast 2-3 day delivery across India",
+              ].map((item) => (
+                <div key={item} className="flex items-center gap-2 text-sm text-white/80">
+                  <CheckCircle className="h-4 w-4 shrink-0 text-orange-400" />
+                  <span dangerouslySetInnerHTML={{ __html: item }} />
+                </div>
+              ))}
             </div>
             <div className="mt-10 grid grid-cols-4 gap-4">
               {STATS.map(({ value, label }) => (
@@ -177,6 +180,24 @@ export default function HomePage() {
                   <p className="mt-1 text-xs text-white/60">{label}</p>
                 </div>
               ))}
+            </div>
+            {/* Buttons moved below stats */}
+            <div className="mt-8 flex flex-wrap gap-3">
+              <Link href="/order" className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-8 py-4 font-bold shadow-lg shadow-orange-500/30 transition-all hover:bg-orange-600 hover:shadow-orange-500/50">
+                Place Order <ArrowRight className="h-5 w-5" />
+              </Link>
+              <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold backdrop-blur-sm transition-all hover:bg-white/20">
+                <MessageCircle className="h-5 w-5" /> WhatsApp Us
+              </a>
+              <a href={`tel:${SITE.phoneRaw}`}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold transition-all hover:bg-white/20">
+                <Phone className="h-5 w-5" /> Call Now
+              </a>
+              <a href={SITE.emailHref}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold transition-all hover:bg-white/20">
+                <Mail className="h-5 w-5" /> Mail Us
+              </a>
             </div>
           </div>
           {/* Hero visual */}
