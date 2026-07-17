@@ -149,22 +149,6 @@ export default function HomePage() {
               Gujarat&apos;s premier pharmaceutical printing house — cartons, labels, blisters &amp; inserts.
               Premium quality, 2-3 day delivery, MOQ just 10 pieces.
             </p>
-            {/* About Us snippet */}
-            <div className="mb-8 grid grid-cols-2 gap-3 max-w-2xl sm:grid-cols-3">
-              {[
-                "Expert pharmaceutical printers since 2015",
-                "300/350 GSM FBB sheets",
-                "UV Gloss & Aqua Matt varnish",
-                "No die cost for small quantities",
-                "MOQ just 10 pieces for carton",
-                "Fast 2-3 day delivery across India",
-              ].map((item) => (
-                <div key={item} className="flex items-center gap-2 text-sm text-white/80">
-                  <CheckCircle className="h-4 w-4 shrink-0 text-orange-400" />
-                  {item}
-                </div>
-              ))}
-            </div>
             <div className="mb-8 grid grid-cols-4 gap-4 max-w-2xl">
               {STATS.map(({ value, label }) => (
                 <div key={label} className="rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm">
@@ -172,32 +156,6 @@ export default function HomePage() {
                   <p className="mt-1 text-xs text-white/60">{label}</p>
                 </div>
               ))}
-            </div>
-            {/* About Us inline block — replaces buttons */}
-            <div className="mt-2 max-w-2xl rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
-              <div className="mb-4 flex items-center gap-2">
-                <span className="rounded-full bg-orange-500/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-orange-400">About Us</span>
-              </div>
-              <p className="mb-4 text-sm leading-relaxed text-white/70">
-                Kanha Graphics is a leading pharmaceutical packaging and printing company based in Vadodara, Gujarat.
-                Since 2015, we have been delivering premium-quality printed materials to pharmaceutical companies,
-                healthcare brands, and startups across India — all under one roof with fast turnaround and no hidden costs.
-              </p>
-              <div className="grid grid-cols-2 gap-2 text-sm text-white/80">
-                {[
-                  "Expert pharmaceutical printers",
-                  "300/350 GSM FBB sheets",
-                  "UV Gloss & Aqua Matt varnish",
-                  "No die cost for small quantities",
-                  "GST Registered — GSTN: 24DFRPS6567D1ZV",
-                  "Fast 2-3 day delivery across India",
-                ].map((item) => (
-                  <div key={item} className="flex items-center gap-2">
-                    <CheckCircle className="h-4 w-4 shrink-0 text-orange-400" />
-                    {item}
-                  </div>
-                ))}
-              </div>
             </div>
           </div>
         </div>
