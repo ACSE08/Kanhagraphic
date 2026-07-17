@@ -1,10 +1,9 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import Image from "next/image";
 import {
   ArrowRight, CheckCircle, Clock, FileText, Phone, Mail,
-  MessageCircle, Package, Tag, Pill, Zap, Star, Shield,
-  Truck, Award, Users, ThumbsUp, MapPin, BadgeCheck,
+  MessageCircle, Package, Tag, Pill, Zap, Shield,
+  Truck, Award, Users, MapPin, BadgeCheck,
 } from "lucide-react";
 import { PatternBorder } from "@/components/PatternBorder";
 import { MobileQuickServices } from "@/components/MobileQuickServices";
@@ -78,12 +77,6 @@ const PROCESS_STEPS = [
   { step: "04", title: "Print & Deliver", desc: "Your order is printed, quality-checked, and dispatched within 2-3 days." },
 ];
 
-const TESTIMONIALS = [
-  { name: "Rajesh Patel", company: "Sunrise Pharma, Vadodara", rating: 5, text: "Outstanding quality and fastest delivery in Vadodara. Our blister printing has never looked better. Highly recommended!" },
-  { name: "Priya Shah", company: "MediCare Labs, Ahmedabad", rating: 5, text: "Kanha Graphics delivers exactly what they promise — premium carton printing at very competitive rates. MOQ of just 10 pieces is a game changer for us." },
-  { name: "Amit Desai", company: "Global Healthcare, Surat", rating: 5, text: "Professional team, quick proof turnaround, and zero compromise on print quality. We've been their client for 3 years now." },
-];
-
 export default function HomePage() {
   const printingServices = SERVICES.filter((s) => s.category === "printing");
 
@@ -140,9 +133,9 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Desktop hero */}
-        <div className="relative mx-auto hidden max-w-7xl px-6 py-28 lg:grid lg:grid-cols-2 lg:items-center lg:gap-16 xl:px-8">
-          <div>
+        {/* Desktop hero — full width, no right column image */}
+        <div className="relative mx-auto hidden max-w-7xl px-6 py-28 lg:block xl:px-8">
+          <div className="max-w-3xl">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2">
               <MapPin className="h-4 w-4 text-orange-400" />
               <span className="text-sm font-semibold text-orange-400">Vadodara&apos;s Trusted Printing Partner</span>
@@ -153,27 +146,27 @@ export default function HomePage() {
                 EXPERT PRINTING
               </span>
             </h1>
-            <p className="mb-8 max-w-xl text-lg leading-relaxed text-white/70">
+            <p className="mb-8 max-w-2xl text-lg leading-relaxed text-white/70">
               Gujarat&apos;s premier pharmaceutical printing house — cartons, labels, blisters &amp; inserts.
               Premium quality, 2-3 day delivery, MOQ just 10 pieces.
             </p>
-            {/* About Us snippet in place of buttons */}
-            <div className="mb-8 grid grid-cols-2 gap-3 max-w-xl">
+            {/* About Us snippet */}
+            <div className="mb-8 grid grid-cols-2 gap-3 max-w-2xl sm:grid-cols-3">
               {[
                 "Expert pharmaceutical printers since 2015",
                 "300/350 GSM FBB sheets",
-                "UV Gloss &amp; Aqua Matt varnish",
+                "UV Gloss & Aqua Matt varnish",
                 "No die cost for small quantities",
                 "MOQ just 10 pieces for carton",
                 "Fast 2-3 day delivery across India",
               ].map((item) => (
                 <div key={item} className="flex items-center gap-2 text-sm text-white/80">
                   <CheckCircle className="h-4 w-4 shrink-0 text-orange-400" />
-                  <span dangerouslySetInnerHTML={{ __html: item }} />
+                  {item}
                 </div>
               ))}
             </div>
-            <div className="mt-10 grid grid-cols-4 gap-4">
+            <div className="mb-8 grid grid-cols-4 gap-4 max-w-2xl">
               {STATS.map(({ value, label }) => (
                 <div key={label} className="rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm">
                   <p className="text-2xl font-extrabold text-orange-400">{value}</p>
@@ -181,8 +174,8 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            {/* Buttons moved below stats */}
-            <div className="mt-8 flex flex-wrap gap-3">
+            {/* Buttons */}
+            <div className="flex flex-wrap gap-3">
               <Link href="/order" className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-8 py-4 font-bold shadow-lg shadow-orange-500/30 transition-all hover:bg-orange-600 hover:shadow-orange-500/50">
                 Place Order <ArrowRight className="h-5 w-5" />
               </Link>
@@ -198,24 +191,6 @@ export default function HomePage() {
                 className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold transition-all hover:bg-white/20">
                 <Mail className="h-5 w-5" /> Mail Us
               </a>
-            </div>
-          </div>
-          {/* Hero visual */}
-          <div className="relative hidden lg:block">
-            <div className="relative h-[420px] w-full overflow-hidden rounded-3xl border border-white/10 shadow-2xl">
-              <Image src="/icons/kg-logo-main.jpeg" alt="Kanha Graphics - Pharmaceutical Printing Vadodara" fill className="object-cover opacity-80" />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628]/80 via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <div className="flex items-center gap-3 rounded-2xl border border-white/20 bg-white/10 p-4 backdrop-blur-md">
-                  <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-orange-500 text-white">
-                    <Award className="h-6 w-6" />
-                  </div>
-                  <div>
-                    <p className="font-bold text-white">Trusted Since 2015</p>
-                    <p className="text-sm text-white/60">500+ satisfied pharmaceutical clients</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -457,59 +432,6 @@ export default function HomePage() {
                 </div>
                 <h3 className="mb-2 font-bold text-[#0a1628]">{title}</h3>
                 <p className="text-xs leading-relaxed text-gray-500">{desc}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ── TESTIMONIALS ─────────────────────────────────────────────────── */}
-      <section className="bg-gray-50 py-12 lg:py-20">
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 text-center lg:mb-16">
-            <span className="mb-3 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">Client Reviews</span>
-            <h2 className="mb-3 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">What Our Clients Say</h2>
-            <p className="mx-auto max-w-xl text-sm text-gray-600 lg:text-base">
-              Trusted by 500+ pharmaceutical companies and healthcare brands across India.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-            {TESTIMONIALS.map(({ name, company, rating, text }) => (
-              <div key={name} className="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm transition-all hover:shadow-lg">
-                <div className="mb-4 flex gap-1">
-                  {Array.from({ length: rating }).map((_, i) => (
-                    <Star key={i} className="h-4 w-4 fill-orange-400 text-orange-400" />
-                  ))}
-                </div>
-                <p className="mb-5 text-sm leading-relaxed text-gray-600">&ldquo;{text}&rdquo;</p>
-                <div className="flex items-center gap-3 border-t border-gray-100 pt-4">
-                  <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-100 text-sm font-bold text-orange-600">
-                    {name.charAt(0)}
-                  </div>
-                  <div>
-                    <p className="text-sm font-bold text-[#0a1628]">{name}</p>
-                    <p className="text-xs text-gray-500">{company}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          {/* Trust badges */}
-          <div className="mt-10 grid grid-cols-2 gap-4 sm:grid-cols-4 lg:mt-14">
-            {[
-              { icon: ThumbsUp, label: "4.9/5 Rating", sub: "Client satisfaction" },
-              { icon: Shield,   label: "GST Registered", sub: "GSTN: 24DFRPS6567D1ZV" },
-              { icon: Award,    label: "Trusted Since 2015", sub: "10+ years experience" },
-              { icon: BadgeCheck, label: "Quality Assured", sub: "Every print checked" },
-            ].map(({ icon: Icon, label, sub }) => (
-              <div key={label} className="flex items-center gap-3 rounded-2xl border border-gray-100 bg-white p-4 shadow-sm">
-                <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-100 text-orange-600">
-                  <Icon className="h-5 w-5" />
-                </div>
-                <div>
-                  <p className="text-sm font-bold text-[#0a1628]">{label}</p>
-                  <p className="text-xs text-gray-500">{sub}</p>
-                </div>
               </div>
             ))}
           </div>
