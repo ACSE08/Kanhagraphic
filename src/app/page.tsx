@@ -56,7 +56,7 @@ const NODE_ICON_MAP: Record<string, React.ReactNode> = {
 const STATS = [
   { value: "10+", label: "Years in Business" },
   { value: "5000+", label: "Orders Delivered" },
-  { value: "500+", label: "Happy Clients" },
+  { value: "200+", label: "Happy Clients" },
   { value: "2-3", label: "Days Delivery" },
 ];
 
