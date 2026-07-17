@@ -174,23 +174,31 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-            {/* Buttons */}
-            <div className="flex flex-wrap gap-3">
-              <Link href="/order" className="inline-flex items-center gap-2 rounded-xl bg-orange-500 px-8 py-4 font-bold shadow-lg shadow-orange-500/30 transition-all hover:bg-orange-600 hover:shadow-orange-500/50">
-                Place Order <ArrowRight className="h-5 w-5" />
-              </Link>
-              <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold backdrop-blur-sm transition-all hover:bg-white/20">
-                <MessageCircle className="h-5 w-5" /> WhatsApp Us
-              </a>
-              <a href={`tel:${SITE.phoneRaw}`}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold transition-all hover:bg-white/20">
-                <Phone className="h-5 w-5" /> Call Now
-              </a>
-              <a href={SITE.emailHref}
-                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold transition-all hover:bg-white/20">
-                <Mail className="h-5 w-5" /> Mail Us
-              </a>
+            {/* About Us inline block — replaces buttons */}
+            <div className="mt-2 max-w-2xl rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm">
+              <div className="mb-4 flex items-center gap-2">
+                <span className="rounded-full bg-orange-500/20 px-3 py-1 text-xs font-bold uppercase tracking-widest text-orange-400">About Us</span>
+              </div>
+              <p className="mb-4 text-sm leading-relaxed text-white/70">
+                Kanha Graphics is a leading pharmaceutical packaging and printing company based in Vadodara, Gujarat.
+                Since 2015, we have been delivering premium-quality printed materials to pharmaceutical companies,
+                healthcare brands, and startups across India — all under one roof with fast turnaround and no hidden costs.
+              </p>
+              <div className="grid grid-cols-2 gap-2 text-sm text-white/80">
+                {[
+                  "Expert pharmaceutical printers",
+                  "300/350 GSM FBB sheets",
+                  "UV Gloss & Aqua Matt varnish",
+                  "No die cost for small quantities",
+                  "GST Registered — GSTN: 24DFRPS6567D1ZV",
+                  "Fast 2-3 day delivery across India",
+                ].map((item) => (
+                  <div key={item} className="flex items-center gap-2">
+                    <CheckCircle className="h-4 w-4 shrink-0 text-orange-400" />
+                    {item}
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
         </div>
