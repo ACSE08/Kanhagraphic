@@ -19,6 +19,7 @@ export function MobileHeader({ user }: { user: SessionUser | null }) {
     "/order": "Place Order",
     "/cart": "Cart",
     "/contact": "Contact",
+    "/gallery": "Gallery",
     "/login": "Login",
     "/signup": "Sign Up",
     "/dashboard": "My Orders",

@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { PatternBorder } from "@/components/PatternBorder";
 import { MobileQuickServices } from "@/components/MobileQuickServices";
-import { ProductSlider } from "@/components/ProductSlider";
 import { SERVICES } from "@/lib/pricing";
 import { SITE, CARTON_FEATURES, LABEL_FEATURES, BLISTER_FEATURES } from "@/lib/constants";
 
@@ -216,20 +215,6 @@ export default function HomePage() {
               <p className="text-xs text-white/80">{label}</p>
             </div>
           ))}
-        </div>
-      </section>
-
-      {/* ── PICTURES GALLERY ─────────────────────────────────────────────── */}
-      <section className="bg-gray-50 py-12 lg:py-20">
-        <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-8 text-center lg:mb-12">
-            <span className="mb-3 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">Our Work</span>
-            <h2 className="mb-3 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">Pictures Gallery</h2>
-            <p className="mx-auto max-w-xl text-sm text-gray-600 lg:text-base">
-              Explore our pharmaceutical printing range — cartons, labels, blisters and more.
-            </p>
-          </div>
-          <ProductSlider />
         </div>
       </section>
 
