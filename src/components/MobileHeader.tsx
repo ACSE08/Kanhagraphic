@@ -14,7 +14,7 @@ export function MobileHeader({ user }: { user: SessionUser | null }) {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const pageTitles: Record<string, string> = {
-    "/": "Kanha Graphics",
+    "/": "Kanha Graphic",
     "/services": "Services",
     "/order": "Place Order",
     "/cart": "Cart",
@@ -28,7 +28,7 @@ export function MobileHeader({ user }: { user: SessionUser | null }) {
 
   const title =
     pageTitles[pathname] ||
-    (pathname.startsWith("/dashboard/orders") ? "Order Details" : "Kanha Graphics");
+    (pathname.startsWith("/dashboard/orders") ? "Order Details" : "Kanha Graphic");
 
   const showLogo = pathname === "/";
 
@@ -56,7 +56,7 @@ export function MobileHeader({ user }: { user: SessionUser | null }) {
         ) : (
           <div className="min-w-0 flex-1">
             <p className="truncate text-base font-bold text-white">{title}</p>
-            <p className="truncate text-[11px] text-white/50">Kanha Graphics</p>
+            <p className="truncate text-[11px] text-white/50">Kanha Graphic</p>
           </div>
         )}
 

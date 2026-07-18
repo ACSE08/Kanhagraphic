@@ -3,16 +3,16 @@ import { ProductSlider } from "@/components/ProductSlider";
 import { SITE } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Pictures Gallery | Kanha Graphics — Pharmaceutical Printing Vadodara",
+  title: "Pictures Gallery | Kanha Graphic — Pharmaceutical Printing Vadodara",
   description:
-    "Browse our pharmaceutical printing gallery — carton printing, label printing, blister strips, sachets and more. See real work by Kanha Graphics, Vadodara.",
+    "Browse our pharmaceutical printing gallery — carton printing, label printing, blister strips, sachets and more. See real work by Kanha Graphic, Vadodara.",
   alternates: { canonical: `${SITE.url}/gallery` },
   openGraph: {
     type: "website",
     url: `${SITE.url}/gallery`,
-    title: "Gallery | Kanha Graphics Pharmaceutical Printing",
+    title: "Gallery | Kanha Graphic Pharmaceutical Printing",
     description: "See our pharmaceutical printing work — cartons, labels, blisters and more.",
-    images: [{ url: `${SITE.url}/icons/kg-logo-main.jpeg`, width: 800, height: 600, alt: "Kanha Graphics Gallery" }],
+    images: [{ url: `${SITE.url}/icons/kg-logo-main.jpeg`, width: 800, height: 600, alt: "Kanha Graphic Gallery" }],
   },
 };
 

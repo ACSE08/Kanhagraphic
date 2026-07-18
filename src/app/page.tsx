@@ -7,13 +7,14 @@ import {
 } from "lucide-react";
 import { PatternBorder } from "@/components/PatternBorder";
 import { MobileQuickServices } from "@/components/MobileQuickServices";
+import { Reveal, RevealUp, RevealLeft, RevealRight, RevealScale } from "@/components/Reveal";
 import { SERVICES } from "@/lib/pricing";
 import { SITE, CARTON_FEATURES, LABEL_FEATURES, BLISTER_FEATURES } from "@/lib/constants";
 
 export const metadata: Metadata = {
-  title: "Kanha Graphics | Best Pharmaceutical Printing Services in Vadodara",
+  title: "Kanha Graphic | Best Pharmaceutical Printing Services in Vadodara",
   description:
-    "Kanha Graphics — Vadodara's trusted pharmaceutical printing company. Expert in carton printing, label printing, blister/strip/sachet printing. Low MOQ, fast delivery, no die cost. Serving Gujarat since 2015.",
+    "Kanha Graphic — Vadodara's trusted pharmaceutical printing company. Expert in carton printing, label printing, blister/strip/sachet printing. Low MOQ, fast delivery, no die cost. Serving Gujarat since 2015.",
   keywords: [
     "pharmaceutical printing Vadodara",
     "carton printing Gujarat",
@@ -23,7 +24,7 @@ export const metadata: Metadata = {
     "sachet printing",
     "FBB sheet printing",
     "medicine packaging printing",
-    "Kanha Graphics Vadodara",
+    "Kanha Graphic Vadodara",
     "small quantity printing Gujarat",
     "UV gloss printing Vadodara",
     "printing company near me Vadodara",
@@ -34,14 +35,14 @@ export const metadata: Metadata = {
     locale: "en_IN",
     url: SITE.url,
     siteName: SITE.name,
-    title: "Kanha Graphics | Pharmaceutical Printing Experts in Vadodara",
+    title: "Kanha Graphic | Pharmaceutical Printing Experts in Vadodara",
     description:
       "Premium carton, label & blister printing for pharmaceutical companies in Gujarat. Fast 2-3 day delivery. MOQ just 10 pieces. Call +91 966 233 0701.",
-    images: [{ url: `${SITE.url}/icons/kg-logo-main.jpeg`, width: 800, height: 600, alt: "Kanha Graphics Logo" }],
+    images: [{ url: `${SITE.url}/icons/kg-logo-main.jpeg`, width: 800, height: 600, alt: "Kanha Graphic Logo" }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Kanha Graphics | Pharmaceutical Printing Vadodara",
+    title: "Kanha Graphic | Pharmaceutical Printing Vadodara",
     description: "Carton, label & blister printing experts in Vadodara, Gujarat. Fast delivery, low MOQ.",
   },
 };
@@ -173,7 +174,7 @@ export default function HomePage() {
         {/* Desktop hero — 2-column: left text, right service cards */}
         <div className="relative mx-auto hidden max-w-7xl px-6 py-20 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 xl:px-8">
           {/* Left column */}
-          <div className="animate-fade-left">
+          <RevealLeft duration={700}>
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2">
               <MapPin className="h-4 w-4 text-orange-400" />
               <span className="text-sm font-semibold text-orange-400">Vadodara&apos;s Trusted Printing Partner</span>
@@ -209,10 +210,10 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
+          </RevealLeft>
 
           {/* Right column — service quick-links */}
-          <div className="animate-fade-right animate-delay-200">
+          <RevealRight duration={700} delay={150}>
             <p className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">Our Printing Services</p>
             <div className="grid grid-cols-2 gap-4">
               {[
@@ -246,7 +247,6 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
-          </div>
         </div>
         <div className="hidden lg:block"><PatternBorder /></div>
       </section>
@@ -269,7 +269,7 @@ export default function HomePage() {
       <section className="bg-white py-12 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            <div className="animate-fade-left">
+            <RevealLeft duration={700}>
               <span className="mb-3 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">About Us</span>
               <h2 className="mb-5 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">
                 Vadodara&apos;s Trusted<br />
@@ -307,10 +307,9 @@ export default function HomePage() {
                 <Link href="/contact" className="inline-flex items-center gap-2 rounded-xl border-2 border-[#0a1628] px-6 py-3 font-semibold text-[#0a1628] hover:bg-[#0a1628] hover:text-white">
                   Contact Us
                 </Link>
-              </div>
-            </div>
+            </RevealLeft>
             {/* Info cards */}
-            <div className="grid grid-cols-2 gap-4 animate-fade-right animate-delay-200">
+            <RevealRight duration={700} delay={150} className="grid grid-cols-2 gap-4">
               {[
                 { icon: MapPin, title: "Location", value: "Nizampura, Vadodara 390002", bg: "bg-blue-50", color: "text-blue-600" },
                 { icon: Phone, title: "Phone", value: SITE.phone, bg: "bg-green-50", color: "text-green-600" },
@@ -325,7 +324,7 @@ export default function HomePage() {
                   <p className="text-sm font-semibold text-gray-800 break-all">{value}</p>
                 </div>
               ))}
-            </div>
+            </RevealRight>
           </div>
         </div>
       </section>
@@ -334,8 +333,7 @@ export default function HomePage() {
       <section className="bg-[#0a1628] py-12 text-white lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center lg:mb-16 animate-fade-up">
-            <span className="mb-3 inline-block rounded-full bg-orange-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-400">Why Choose Us</span>
-            <h2 className="mb-3 text-2xl font-extrabold lg:text-4xl">
+            <span className="mb-3 inline-block rounded-full bg-orange-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-400">Why Choose Us</span>            <h2 className="mb-3 text-2xl font-extrabold lg:text-4xl">
               The Kanha Graphics Advantage
             </h2>
             <p className="mx-auto max-w-xl text-sm text-white/60 lg:text-base">

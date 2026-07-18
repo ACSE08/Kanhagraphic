@@ -1,9 +1,9 @@
 export const SITE = {
-  name: "Kanha Graphics",
+  name: "Kanha Graphic",
   tagline:
     "Innovative Designs, Expert in Registration Products Printing — We bring your vision to reality.",
   description:
-    "Kanha Graphics offers professional carton printing, label printing, and blister/strip/sachet printing services in Vadodara, Gujarat. Fast delivery, small MOQ, no die cost.",
+    "Kanha Graphic offers professional carton printing, label printing, and blister/strip/sachet printing services in Vadodara, Gujarat. Fast delivery, small MOQ, no die cost.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "https://kanhagraphics.com",
   email: "info.kanhagraphic0701@gmail.com",
   phone: "+91 966 233 0701",
@@ -24,7 +24,7 @@ export const SITE = {
     "pharmaceutical packaging printing",
     "FBB sheet printing",
     "small quantity printing",
-    "Kanha Graphics",
+    "Kanha Graphic",
   ],
 };
 
