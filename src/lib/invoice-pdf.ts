@@ -199,7 +199,7 @@ async function buildInvoiceDoc(
 
   doc.setFont("helvetica", "bold");
   doc.setFontSize(16);
-  doc.text("Tax Invoice", rx + rightW / 2, hY + 8, { align: "center" });
+  doc.text("Quotation", rx + rightW / 2, hY + 8, { align: "center" });
 
   // Mid vertical divider spans full header height
   doc.setLineWidth(0.2);
