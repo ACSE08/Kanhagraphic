@@ -99,7 +99,7 @@ export default function HomePage() {
     },
     "geo": { "@type": "GeoCoordinates", "latitude": 22.3235, "longitude": 73.1925 },
     "openingHoursSpecification": [
-      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "09:00", "closes": "19:00" }
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "09:00", "closes": "17:00" }
     ],
     "priceRange": "₹₹",
     "description": SITE.description,
@@ -247,6 +247,7 @@ export default function HomePage() {
                 </div>
               ))}
             </div>
+          </RevealRight>
         </div>
         <div className="hidden lg:block"><PatternBorder /></div>
       </section>
@@ -306,6 +307,7 @@ export default function HomePage() {
                 <Link href="/contact" className="inline-flex items-center gap-2 rounded-xl border-2 border-[#0a1628] px-6 py-3 font-semibold text-[#0a1628] hover:bg-[#0a1628] hover:text-white">
                   Contact Us
                 </Link>
+              </div>
             </RevealLeft>
             {/* Info cards */}
             <RevealRight duration={700} delay={150} className="grid grid-cols-2 gap-4">
@@ -313,7 +315,7 @@ export default function HomePage() {
                 { icon: MapPin, title: "Location", value: "Nizampura, Vadodara 390002", bg: "bg-blue-50", color: "text-blue-600" },
                 { icon: Phone, title: "Phone", value: SITE.phone, bg: "bg-green-50", color: "text-green-600" },
                 { icon: Mail, title: "Email", value: SITE.email, bg: "bg-orange-50", color: "text-orange-600" },
-                { icon: Clock, title: "Working Hours", value: "Mon–Sat: 9 AM – 7 PM", bg: "bg-purple-50", color: "text-purple-600" },
+                { icon: Clock, title: "Working Hours", value: "Mon–Sat: 9 AM – 5 PM", bg: "bg-purple-50", color: "text-purple-600" },
               ].map(({ icon: Icon, title, value, bg, color }) => (
                 <div key={title} className={`rounded-2xl ${bg} p-5`}>
                   <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-xl bg-white ${color}`}>
