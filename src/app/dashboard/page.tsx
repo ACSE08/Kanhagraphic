@@ -10,7 +10,7 @@ import { formatINR, getServiceById } from "@/lib/pricing";
 
 export const metadata: Metadata = {
   title: "My Orders",
-  description: "Track and manage your Kanha Graphics printing orders.",
+  description: "Track and manage your Kanha Graphic printing orders.",
 };
 
 export default async function DashboardPage({

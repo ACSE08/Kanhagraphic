@@ -5,7 +5,7 @@ import { SITE } from "@/lib/constants";
 
 export const metadata: Metadata = {
   title: "Contact Us",
-  description: `Contact Kanha Graphics in Vadodara. Call ${SITE.phone}, email ${SITE.email}, or visit our office at ${SITE.address}.`,
+  description: `Contact Kanha Graphic in Vadodara. Call ${SITE.phone}, email ${SITE.email}, or visit our office at ${SITE.address}.`,
 };
 
 export default function ContactPage() {
@@ -94,7 +94,7 @@ export default function ContactPage() {
 
             <div className="bg-white rounded-2xl overflow-hidden shadow-md border border-gray-100 h-64">
               <iframe
-                title="Kanha Graphics Location"
+                title="Kanha Graphic Location"
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3691.0!2d73.18!3d22.34!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjLCsDIwJzI0LjAiTiA3M8KwMTAnNDguMCJF!5e0!3m2!1sen!2sin!4v1"
                 width="100%"
                 height="100%"

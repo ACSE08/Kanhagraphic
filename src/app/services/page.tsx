@@ -12,7 +12,7 @@ import {
 export const metadata: Metadata = {
   title: "Services",
   description:
-    "Explore Kanha Graphics printing services — carton printing, label printing, and blister/strip/sachet printing in Vadodara.",
+    "Explore Kanha Graphic printing services — carton printing, label printing, and blister/strip/sachet printing in Vadodara.",
 };
 
 export default function ServicesPage() {

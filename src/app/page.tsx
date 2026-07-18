@@ -84,7 +84,7 @@ export default function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "LocalBusiness",
-    "name": "Kanha Graphics",
+    "name": "Kanha Graphic",
     "image": `${SITE.url}/icons/kg-logo-main.jpeg`,
     "url": SITE.url,
     "telephone": SITE.phone,
@@ -276,7 +276,7 @@ export default function HomePage() {
                 <span className="text-orange-500">Pharmaceutical Printing Partner</span>
               </h2>
               <p className="mb-4 text-sm leading-relaxed text-gray-600 lg:text-base">
-                Kanha Graphics is a leading pharmaceutical packaging and printing company based in Vadodara, Gujarat.
+                Kanha Graphic is a leading pharmaceutical packaging and printing company based in Vadodara, Gujarat.
                 Since 2015, we have been delivering premium-quality printed materials to pharmaceutical companies,
                 healthcare brands, and startups across India.
               </p>
@@ -333,7 +333,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center lg:mb-16 animate-fade-up">
             <span className="mb-3 inline-block rounded-full bg-orange-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-400">Why Choose Us</span>            <h2 className="mb-3 text-2xl font-extrabold lg:text-4xl">
-              The Kanha Graphics Advantage
+              The Kanha Graphic Advantage
             </h2>
             <p className="mx-auto max-w-xl text-sm text-white/60 lg:text-base">
               We don&apos;t just print — we deliver quality, speed and trust with every order.
@@ -513,7 +513,7 @@ export default function HomePage() {
             Ready to Start Your Printing Project?
           </h2>
           <p className="mx-auto mb-8 max-w-xl text-sm text-white/80 lg:text-base">
-            Join 200+ pharmaceutical companies who trust Kanha Graphics for their packaging needs.
+            Join 200+ pharmaceutical companies who trust Kanha Graphic for their packaging needs.
             Create a free account and place your first order today.
           </p>
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">

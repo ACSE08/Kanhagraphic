@@ -4,7 +4,7 @@ import { CartPageClient } from "@/components/CartPageClient";
 
 export const metadata: Metadata = {
   title: "Cart",
-  description: "Review and checkout your Kanha Graphics printing orders.",
+  description: "Review and checkout your Kanha Graphic printing orders.",
 };
 
 export default async function CartPage() {

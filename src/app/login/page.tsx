@@ -6,7 +6,7 @@ import { AuthForm } from "@/components/AuthForm";
 
 export const metadata: Metadata = {
   title: "Login",
-  description: "Login to your Kanha Graphics account to track orders and manage your printing projects.",
+  description: "Login to your Kanha Graphic account to track orders and manage your printing projects.",
 };
 
 export default async function LoginPage({

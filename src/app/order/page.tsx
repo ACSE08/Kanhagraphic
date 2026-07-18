@@ -5,7 +5,7 @@ import { OrderWorkspace } from "@/components/OrderWorkspace";
 export const metadata: Metadata = {
   title: "Place Order",
   description:
-    "Place your printing order with Kanha Graphics. Upload Corel Draw files, get instant pricing for blister/strip printing, and track your order online.",
+    "Place your printing order with Kanha Graphic. Upload Corel Draw files, get instant pricing for blister/strip printing, and track your order online.",
 };
 
 export default async function OrderPage({
