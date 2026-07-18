@@ -291,7 +291,6 @@ export default function HomePage() {
                   "300/350 GSM FBB sheets",
                   "UV Gloss & Aqua Matt varnish",
                   "GST registered business",
-                  "PAN: DFRPS6567D",
                   "GSTN: 24DFRPS6567D1ZV",
                 ].map((item) => (
                   <div key={item} className="flex items-center gap-2 text-sm text-gray-700">

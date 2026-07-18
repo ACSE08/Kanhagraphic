@@ -185,13 +185,9 @@ async function buildInvoiceDoc(
   doc.setDrawColor(120, 120, 120);
   doc.setLineWidth(0.2);
   doc.line(ML + 1, hY + 24, ML + leftW - 1, hY + 24);
-  doc.setFontSize(7);
-  doc.text("PAN NO", ML + 2, hY + 29);
-  doc.setFont("helvetica", "bold");
-  doc.text("DFRPS6567D", ML + 18, hY + 29);
   doc.setFont("helvetica", "normal");
-  doc.line(ML + 1, hY + 33, ML + leftW - 1, hY + 33);
-  doc.text("GST NO", ML + 2, hY + 38.5);
+  doc.line(ML + 1, hY + 29, ML + leftW - 1, hY + 29);
+  doc.text("GST NO", ML + 2, hY + 34.5);
 
   // Right header — Tax Invoice title + meta grid
   const rx = ML + leftW;
@@ -297,7 +293,6 @@ async function buildInvoiceDoc(
   doc.line(ML, bBotY + 6, ML + bLeftW, bBotY + 6);
   doc.text("State Name", ML + 1.5, bBotY + 10);
   doc.line(ML, bBotY + 12, ML + bLeftW, bBotY + 12);
-  doc.text("PAN NO", ML + 1.5, bBotY + 16);
 
   // Right side of billing block
   const brx = ML + bLeftW;
