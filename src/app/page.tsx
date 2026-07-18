@@ -138,7 +138,7 @@ export default function HomePage() {
           </div>
           <h1 className="mb-3 text-2xl font-extrabold leading-tight">
             INNOVATIVE DESIGNS,{" "}
-            <span className="text-orange-400">EXPERT PRINTING</span>
+            <span className="text-orange-400">EXPERT REGISTRATION PRODUCT PRINTING</span>
           </h1>
           <p className="mb-5 text-sm leading-relaxed text-white/70">
             Pharmaceutical cartons, labels, inserts &amp; blisters.
@@ -181,7 +181,7 @@ export default function HomePage() {
             </div>
             <h1 className="mb-6 text-5xl font-extrabold leading-tight xl:text-6xl">
               INNOVATIVE DESIGNS,{" "}
-              <span className="gradient-text">EXPERT PRINTING</span>
+              <span className="gradient-text">EXPERT REGISTRATION PRODUCT PRINTING</span>
             </h1>
             <p className="mb-8 max-w-xl text-lg leading-relaxed text-white/70">
               Gujarat&apos;s premier pharmaceutical printing house — cartons, labels, blisters &amp; inserts.
