@@ -79,8 +79,46 @@ const PROCESS_STEPS = [
 export default function HomePage() {
   const printingServices = SERVICES.filter((s) => s.category === "printing");
 
+  // JSON-LD structured data for Local Business SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Kanha Graphics",
+    "image": `${SITE.url}/icons/kg-logo-main.jpeg`,
+    "url": SITE.url,
+    "telephone": SITE.phone,
+    "email": SITE.email,
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "Office No. 302, Siddharth Elegance Complex, Old Chhani Road, Nizampura",
+      "addressLocality": "Vadodara",
+      "addressRegion": "Gujarat",
+      "postalCode": "390002",
+      "addressCountry": "IN"
+    },
+    "geo": { "@type": "GeoCoordinates", "latitude": 22.3235, "longitude": 73.1925 },
+    "openingHoursSpecification": [
+      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Monday","Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "09:00", "closes": "19:00" }
+    ],
+    "priceRange": "₹₹",
+    "description": SITE.description,
+    "sameAs": [`https://wa.me/${SITE.whatsapp}`],
+    "hasOfferCatalog": {
+      "@type": "OfferCatalog",
+      "name": "Pharmaceutical Printing Services",
+      "itemListElement": [
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Carton Printing", "description": "300/350 GSM FBB sheets with UV Gloss & Aqua Matt varnish. MOQ 10 pieces." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Label Printing", "description": "Sheet and roll form labels for pharmaceutical products." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Blister Strip Sachet Printing", "description": "Multicolor pharmaceutical blister, strip and sachet printing." } },
+        { "@type": "Offer", "itemOffered": { "@type": "Service", "name": "Insert Printing", "description": "Coloured and B&W insert printing for pharma packages." } },
+      ]
+    }
+  };
+
   return (
     <>
+      {/* JSON-LD */}
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       {/* ── HERO ─────────────────────────────────────────────────────────── */}
       <section className="relative overflow-hidden bg-[#0a1628] text-white">
         {/* Background decoration */}
@@ -132,28 +170,79 @@ export default function HomePage() {
           </div>
         </div>
 
-        {/* Desktop hero — full width, no right column image */}
-        <div className="relative mx-auto hidden max-w-7xl px-6 py-28 lg:block xl:px-8">
-          <div className="max-w-3xl">
+        {/* Desktop hero — 2-column: left text, right service cards */}
+        <div className="relative mx-auto hidden max-w-7xl px-6 py-20 lg:grid lg:grid-cols-2 lg:items-center lg:gap-12 xl:px-8">
+          {/* Left column */}
+          <div className="animate-fade-left">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-orange-500/30 bg-orange-500/10 px-4 py-2">
               <MapPin className="h-4 w-4 text-orange-400" />
               <span className="text-sm font-semibold text-orange-400">Vadodara&apos;s Trusted Printing Partner</span>
             </div>
             <h1 className="mb-6 text-5xl font-extrabold leading-tight xl:text-6xl">
               INNOVATIVE DESIGNS,{" "}
-              <span className="bg-gradient-to-r from-orange-400 to-orange-600 bg-clip-text text-transparent">
-                EXPERT PRINTING
-              </span>
+              <span className="gradient-text">EXPERT PRINTING</span>
             </h1>
-            <p className="mb-8 max-w-2xl text-lg leading-relaxed text-white/70">
+            <p className="mb-8 max-w-xl text-lg leading-relaxed text-white/70">
               Gujarat&apos;s premier pharmaceutical printing house — cartons, labels, blisters &amp; inserts.
               Premium quality, 2-3 day delivery, MOQ just 10 pieces.
             </p>
-            <div className="mb-8 grid grid-cols-4 gap-4 max-w-2xl">
-              {STATS.map(({ value, label }) => (
-                <div key={label} className="rounded-xl border border-white/10 bg-white/5 p-4 text-center backdrop-blur-sm">
+            {/* CTA Buttons */}
+            <div className="mb-8 flex flex-wrap gap-3">
+              <Link href="/order" className="relative inline-flex items-center gap-2 rounded-xl bg-orange-500 px-7 py-4 font-bold shadow-lg shadow-orange-500/30 transition-all hover:bg-orange-600 hover:scale-105 active:scale-95 orange-glow">
+                Place Order <ArrowRight className="h-5 w-5" />
+              </Link>
+              <a href={`https://wa.me/${SITE.whatsapp}`} target="_blank" rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold backdrop-blur-sm transition-all hover:bg-white/20 hover:scale-105">
+                <MessageCircle className="h-5 w-5 text-green-400" /> WhatsApp
+              </a>
+              <a href={`tel:${SITE.phoneRaw}`}
+                className="inline-flex items-center gap-2 rounded-xl border border-white/20 bg-white/10 px-6 py-4 font-semibold transition-all hover:bg-white/20 hover:scale-105">
+                <Phone className="h-5 w-5 text-blue-400" /> Call Now
+              </a>
+            </div>
+            {/* Stats */}
+            <div className="grid grid-cols-4 gap-3">
+              {STATS.map(({ value, label }, i) => (
+                <div key={label} className={`glass-card rounded-xl p-4 text-center animate-scale-in animate-delay-${(i+1)*100}`}>
                   <p className="text-2xl font-extrabold text-orange-400">{value}</p>
                   <p className="mt-1 text-xs text-white/60">{label}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Right column — service quick-links */}
+          <div className="animate-fade-right animate-delay-200">
+            <p className="mb-4 text-xs font-bold uppercase tracking-widest text-white/40">Our Printing Services</p>
+            <div className="grid grid-cols-2 gap-4">
+              {[
+                { href: "/order?service=carton-printing",        icon: Package,  label: "Carton Printing",       desc: "MOQ 10 pcs • 2-3 days", color: "from-orange-500/20 to-orange-600/5", border: "border-orange-500/20 hover:border-orange-500/60" },
+                { href: "/order?service=blister-strips-sachet",  icon: Pill,     label: "Blister / Strip",       desc: "No MOQ • Fast delivery",  color: "from-purple-500/20 to-purple-600/5", border: "border-purple-500/20 hover:border-purple-500/60" },
+                { href: "/order?service=label-printing",         icon: Tag,      label: "Label Printing",        desc: "Sheet & roll form",       color: "from-blue-500/20 to-blue-600/5",   border: "border-blue-500/20 hover:border-blue-500/60" },
+                { href: "/order?service=insert-printing",        icon: FileText, label: "Insert Printing",       desc: "Coloured & B&W",          color: "from-green-500/20 to-green-600/5",  border: "border-green-500/20 hover:border-green-500/60" },
+              ].map(({ href, icon: Icon, label, desc, color, border }, i) => (
+                <Link key={label} href={href}
+                  className={`group relative flex flex-col gap-3 rounded-2xl border bg-gradient-to-br ${color} ${border} p-5 transition-all duration-300 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/30 animate-scale-in animate-delay-${(i+1)*100}`}>
+                  <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-white/10 text-white transition-all group-hover:bg-orange-500 group-hover:scale-110">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="font-bold text-white">{label}</p>
+                    <p className="mt-0.5 text-xs text-white/50">{desc}</p>
+                  </div>
+                  <ArrowRight className="absolute bottom-4 right-4 h-4 w-4 text-white/30 transition-all group-hover:text-orange-400 group-hover:translate-x-1" />
+                </Link>
+              ))}
+            </div>
+            {/* Quick trust badges */}
+            <div className="mt-4 flex flex-wrap gap-3">
+              {[
+                { icon: Zap,          label: "2-3 Day Delivery" },
+                { icon: CheckCircle,  label: "No Die Cost" },
+                { icon: BadgeCheck,   label: "GST Registered" },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} className="flex items-center gap-1.5 rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-white/70">
+                  <Icon className="h-3.5 w-3.5 text-orange-400" />{label}
                 </div>
               ))}
             </div>
@@ -180,8 +269,7 @@ export default function HomePage() {
       <section className="bg-white py-12 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
-            {/* Text */}
-            <div>
+            <div className="animate-fade-left">
               <span className="mb-3 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">About Us</span>
               <h2 className="mb-5 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">
                 Vadodara&apos;s Trusted<br />
@@ -222,7 +310,7 @@ export default function HomePage() {
               </div>
             </div>
             {/* Info cards */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-4 animate-fade-right animate-delay-200">
               {[
                 { icon: MapPin, title: "Location", value: "Nizampura, Vadodara 390002", bg: "bg-blue-50", color: "text-blue-600" },
                 { icon: Phone, title: "Phone", value: SITE.phone, bg: "bg-green-50", color: "text-green-600" },
@@ -245,7 +333,7 @@ export default function HomePage() {
       {/* ── WHY CHOOSE US ────────────────────────────────────────────────── */}
       <section className="bg-[#0a1628] py-12 text-white lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="mb-10 text-center lg:mb-16">
+          <div className="mb-10 text-center lg:mb-16 animate-fade-up">
             <span className="mb-3 inline-block rounded-full bg-orange-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-400">Why Choose Us</span>
             <h2 className="mb-3 text-2xl font-extrabold lg:text-4xl">
               The Kanha Graphics Advantage
@@ -255,8 +343,8 @@ export default function HomePage() {
             </p>
           </div>
           <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-3">
-            {WHY_CHOOSE_US.map(({ icon: Icon, title, desc }) => (
-              <div key={title} className="group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:border-orange-500/50 hover:bg-white/10">
+            {WHY_CHOOSE_US.map(({ icon: Icon, title, desc }, i) => (
+              <div key={title} className={`group rounded-2xl border border-white/10 bg-white/5 p-6 backdrop-blur-sm transition-all hover:border-orange-500/50 hover:bg-white/10 hover:-translate-y-1 animate-scale-in animate-delay-${(i+1)*100}`}>
                 <div className="mb-4 flex h-12 w-12 items-center justify-center rounded-2xl bg-orange-500/20 text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
                   <Icon className="h-6 w-6" />
                 </div>
@@ -344,8 +432,8 @@ export default function HomePage() {
 
           {/* Service cards */}
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-            {printingServices.map((service) => (
-              <div key={service.id} className="group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-1 hover:border-orange-200 hover:shadow-lg">
+            {printingServices.map((service, i) => (
+              <div key={service.id} className={`group rounded-2xl border border-gray-100 bg-white p-5 shadow-sm transition-all hover:-translate-y-2 hover:border-orange-200 hover:shadow-xl animate-scale-in animate-delay-${(i+1)*100}`}>
                 <div className="mb-4 flex h-11 w-11 items-center justify-center rounded-2xl bg-[#0a1628] text-orange-400 group-hover:bg-orange-500 group-hover:text-white transition-colors">
                   {NODE_ICON_MAP[service.id]}
                 </div>
@@ -374,11 +462,11 @@ export default function HomePage() {
           </div>
           <div className="relative grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {PROCESS_STEPS.map(({ step, title, desc }, i) => (
-              <div key={step} className="relative text-center">
+              <div key={step} className={`relative text-center animate-fade-up animate-delay-${(i+1)*100}`}>
                 {i < PROCESS_STEPS.length - 1 && (
                   <div className="absolute left-full top-8 hidden h-px w-full -translate-x-1/2 border-t-2 border-dashed border-orange-200 lg:block" />
                 )}
-                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0a1628] text-orange-400">
+                <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-[#0a1628] text-orange-400 shadow-lg shadow-orange-500/20 transition-transform hover:scale-110 animate-float">
                   <span className="text-xl font-extrabold">{step}</span>
                 </div>
                 <h3 className="mb-2 font-bold text-[#0a1628]">{title}</h3>
@@ -428,7 +516,7 @@ export default function HomePage() {
             Ready to Start Your Printing Project?
           </h2>
           <p className="mx-auto mb-8 max-w-xl text-sm text-white/80 lg:text-base">
-            Join 500+ pharmaceutical companies who trust Kanha Graphics for their packaging needs.
+            Join 200+ pharmaceutical companies who trust Kanha Graphics for their packaging needs.
             Create a free account and place your first order today.
           </p>
           <div className="flex flex-col items-center gap-3 sm:flex-row sm:justify-center sm:gap-4">
