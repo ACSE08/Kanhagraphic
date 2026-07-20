@@ -7,7 +7,7 @@ import {
 } from "lucide-react";
 import { PatternBorder } from "@/components/PatternBorder";
 import { MobileQuickServices } from "@/components/MobileQuickServices";
-import { Reveal, RevealUp, RevealLeft, RevealRight, RevealScale } from "@/components/Reveal";
+import { RevealLeft, RevealRight } from "@/components/Reveal";
 import { SERVICES } from "@/lib/pricing";
 import { SITE, CARTON_FEATURES, LABEL_FEATURES, BLISTER_FEATURES } from "@/lib/constants";
 
@@ -269,13 +269,15 @@ export default function HomePage() {
       {/* ── ABOUT US ─────────────────────────────────────────────────────── */}
       <section className="bg-white py-12 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-2 lg:gap-16">
+          <div className="mb-10 text-center lg:mb-16">
+            <span className="mb-4 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">About Us</span>
+            <h2 className="mb-4 text-3xl font-extrabold text-[#0a1628] lg:text-5xl">
+              Vadodara&apos;s Trusted<br />
+              <span className="bg-gradient-to-r from-orange-500 to-orange-600 bg-clip-text text-transparent">Pharmaceutical Printing Partner</span>
+            </h2>
+          </div>
+          <div className="grid grid-cols-1 items-start gap-10 lg:grid-cols-2 lg:gap-16">
             <RevealLeft duration={700}>
-              <span className="mb-3 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">About Us</span>
-              <h2 className="mb-5 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">
-                Vadodara&apos;s Trusted<br />
-                <span className="text-orange-500">Pharmaceutical Printing Partner</span>
-              </h2>
               <p className="mb-4 text-sm leading-relaxed text-gray-600 lg:text-base">
                 Kanha Graphic is a leading pharmaceutical packaging and printing company based in Vadodara, Gujarat.
                 Since 2015, we have been delivering premium-quality printed materials to pharmaceutical companies,
@@ -309,7 +311,6 @@ export default function HomePage() {
                 </Link>
               </div>
             </RevealLeft>
-            {/* Info cards */}
             <RevealRight duration={700} delay={150} className="grid grid-cols-2 gap-4">
               {[
                 { icon: MapPin, title: "Location", value: "Nizampura, Vadodara 390002", bg: "bg-blue-50", color: "text-blue-600" },
@@ -334,8 +335,9 @@ export default function HomePage() {
       <section className="bg-[#0a1628] py-12 text-white lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center lg:mb-16 animate-fade-up">
-            <span className="mb-3 inline-block rounded-full bg-orange-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-400">Why Choose Us</span>            <h2 className="mb-3 text-2xl font-extrabold lg:text-4xl">
-              The Kanha Graphic Advantage
+            <span className="mb-3 inline-block rounded-full bg-orange-500/20 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-400">Why Choose Us</span>
+            <h2 className="mb-3 text-3xl font-extrabold lg:text-5xl">
+              The Kanha Graphic <span className="text-orange-400">Advantage</span>
             </h2>
             <p className="mx-auto max-w-xl text-sm text-white/60 lg:text-base">
               We don&apos;t just print — we deliver quality, speed and trust with every order.
@@ -360,8 +362,9 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center lg:mb-16">
             <span className="mb-3 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">Our Services</span>
-            <h2 className="mb-3 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">
-              Complete Pharmaceutical Printing Solutions
+            <h2 className="mb-3 text-3xl font-extrabold text-[#0a1628] lg:text-5xl">
+              Complete Pharmaceutical<br className="hidden lg:block" />
+              <span className="text-orange-500"> Printing Solutions</span>
             </h2>
             <p className="mx-auto max-w-2xl text-sm text-gray-600 lg:text-base">
               Every printing service your pharma business needs — under one roof, at competitive prices.
@@ -456,7 +459,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-10 text-center lg:mb-16">
             <span className="mb-3 inline-block rounded-full bg-orange-100 px-4 py-1.5 text-xs font-bold uppercase tracking-widest text-orange-600">How It Works</span>
-            <h2 className="mb-3 text-2xl font-extrabold text-[#0a1628] lg:text-4xl">Simple 4-Step Process</h2>
+            <h2 className="mb-3 text-3xl font-extrabold text-[#0a1628] lg:text-5xl">Simple <span className="text-orange-500">4-Step</span> Process</h2>
             <p className="mx-auto max-w-xl text-sm text-gray-600 lg:text-base">From order to delivery in just 2-3 days.</p>
           </div>
           <div className="relative grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
