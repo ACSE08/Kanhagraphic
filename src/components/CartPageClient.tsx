@@ -153,8 +153,8 @@ export function CartPageClient({ userId, customer }: CartPageClientProps) {
       }).join("\n\n");
 
       const subtotal = totals.subtotal > 0 ? `\nSubtotal : Rs ${totals.subtotal.toFixed(2)}` : "";
-      const gstLine  = totals.gst > 0      ? `\nGST (18%): Rs ${totals.gst.toFixed(2)}`      : "";
-      const totalLine = totals.total > 0   ? `\nTotal    : Rs ${totals.total.toFixed(2)}`     : "";
+      const gstLine  = totals.gst > 0      ? `\nGST      : Rs ${totals.gst.toFixed(2)}`       : "";
+      const totalLine = totals.total > 0   ? `\nTotal    : Rs ${totals.total.toFixed(2)}`      : "";
 
       const customerBlock =
         `Customer : ${customer?.name ?? ""}` +
@@ -351,7 +351,7 @@ export function CartPageClient({ userId, customer }: CartPageClientProps) {
                   <span>{formatINR(totals.subtotal)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-white/60">GST (18%)</span>
+                  <span className="text-white/60">GST</span>
                   <span>{formatINR(totals.gst)}</span>
                 </div>
                 <div className="flex justify-between border-t border-white/20 pt-2 text-lg font-bold">

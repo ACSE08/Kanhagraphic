@@ -105,7 +105,7 @@ export async function POST(request: Request) {
         if (!labelLayout) {
           return NextResponse.json({ error: "Label layout required for label printing item" }, { status: 400 });
         }
-
+        // labelLayout was already parsed above to get quantity — reuse those values
         try {
           const layout = JSON.parse(labelLayout);
           const labelsPerSheet = Number(layout.labelsPerPage ?? 0);
@@ -113,11 +113,9 @@ export async function POST(request: Request) {
           const sheetsNeeded = Number(
             layout.pagesNeeded ?? (labelsPerSheet > 0 ? Math.ceil(totalLabelCount / labelsPerSheet) : 0)
           );
-
           if (totalLabelCount <= 0 || sheetsNeeded <= 0) {
             return NextResponse.json({ error: "Invalid label sheet layout in cart item" }, { status: 400 });
           }
-
           quantity = totalLabelCount;
           unitPrice = LABEL_SHEET_RATE;
           subtotal = sheetsNeeded * unitPrice;
@@ -224,7 +222,8 @@ export async function POST(request: Request) {
       },
       { status: 201 }
     );
-  } catch {
+  } catch (err) {
+    console.error("[checkout POST] unexpected error:", err);
     return NextResponse.json({ error: "Checkout failed" }, { status: 500 });
   }
 }
