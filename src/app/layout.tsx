@@ -78,7 +78,7 @@ export default async function RootLayout({
   const user = await getSession();
 
   return (
-    <html lang="en" data-scroll-behavior="smooth" className={`${inter.variable} h-full antialiased`}>
+    <html lang="en" className={`${inter.variable} h-full antialiased`}>
       <body className="flex min-h-dvh flex-col overflow-x-hidden font-sans touch-manipulation antialiased">
         <JsonLd />
         <Providers>

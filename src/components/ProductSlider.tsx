@@ -182,16 +182,20 @@ export function ProductSlider() {
     goTo((current - 1 + slides.length) % slides.length, "left");
   }, [current, goTo]);
 
-  // Auto-slide every 4 s
+  // Auto-slide every 4s — stable interval, no leak on next callback change
   useEffect(() => {
-    autoTimer.current = setInterval(next, 4000);
+    autoTimer.current = setInterval(() => {
+      setCurrent((c) => (c + 1) % slides.length);
+    }, 4000);
     return () => { if (autoTimer.current) clearInterval(autoTimer.current); };
-  }, [next]);
+  }, []);
 
   const resetTimer = useCallback(() => {
     if (autoTimer.current) clearInterval(autoTimer.current);
-    autoTimer.current = setInterval(next, 4000);
-  }, [next]);
+    autoTimer.current = setInterval(() => {
+      setCurrent((c) => (c + 1) % slides.length);
+    }, 4000);
+  }, []);
 
   const handlePrev = useCallback(() => {
     prev();
@@ -263,14 +267,14 @@ export function ProductSlider() {
     <div className="relative w-full overflow-hidden rounded-2xl shadow-2xl select-none touch-pan-y">
       {/* Slide */}
       <div
-        className={`relative h-64 sm:h-80 lg:h-[420px] transition-all duration-350 ${
+        className={`relative h-64 sm:h-80 lg:h-[420px] ${
           animating
             ? direction === "right"
               ? "-translate-x-4 opacity-0"
               : "translate-x-4 opacity-0"
             : "translate-x-0 opacity-100"
         }`}
-        style={{ transition: "opacity 350ms ease, transform 350ms ease" }}
+        style={{ transition: "opacity 300ms ease, transform 300ms ease" }}
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         onClick={() => setFullscreen(true)}

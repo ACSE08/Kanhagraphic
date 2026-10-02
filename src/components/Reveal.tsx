@@ -69,6 +69,7 @@ export function Reveal({
         transform: applyInitial(direction),
         transition: `opacity ${duration}ms cubic-bezier(0.4,0,0.2,1), transform ${duration}ms cubic-bezier(0.4,0,0.2,1)`,
         willChange: "opacity, transform",
+        backfaceVisibility: "hidden",
       }}
     >
       {children}
