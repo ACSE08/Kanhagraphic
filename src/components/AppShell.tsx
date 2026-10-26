@@ -1,3 +1,4 @@
+import { ViewTransition } from "react";
 import { DesktopHeader } from "./DesktopHeader";
 import { MobileHeader } from "./MobileHeader";
 import { MobileBottomNav } from "./MobileBottomNav";
@@ -10,7 +11,9 @@ export function AppShell({ user, children }: { user: SessionUser | null; childre
       <MobileHeader user={user} />
       <DesktopHeader user={user} />
       <main className="mobile-shell-main flex-1 w-full overflow-x-hidden pb-[calc(5.5rem+env(safe-area-inset-bottom))] lg:pb-0">
-        {children}
+        <ViewTransition name="route-content" enter="route-enter" exit="route-exit" default="none">
+          {children}
+        </ViewTransition>
       </main>
       <MobileFloatingActions />
       <MobileBottomNav user={user} />

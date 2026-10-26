@@ -165,6 +165,7 @@ body {
   border: none;
   text-decoration: none;
   cursor: pointer;
+  transition: background-color 180ms ease, transform 180ms ease, box-shadow 180ms ease;
 }
 
 .kg-btn-primary:active {
@@ -202,6 +203,14 @@ body {
   0%, 100% { transform: translateX(0); }
   50%       { transform: translateX(4px); }
 }
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.96); }
+  to   { opacity: 1; transform: scale(1); }
+}
 
 .gradient-text {
   background: linear-gradient(135deg, #f97316 0%, #fb923c 40%, #f59e0b 70%, #f97316 100%);
@@ -216,6 +225,31 @@ body {
 .animate-pulse-glow{ animation: pulse-glow 2s ease-in-out infinite; }
 .animate-bounce-x  { animation: bounce-x 1s ease-in-out infinite; }
 .animate-spin-slow { animation: spin-slow 8s linear infinite; }
+.animate-fade-up { animation: fade-up 480ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.animate-scale-in { animation: scale-in 420ms cubic-bezier(0.2, 0.7, 0.2, 1) backwards; }
+.animate-delay-100 { animation-delay: 100ms; }
+.animate-delay-200 { animation-delay: 200ms; }
+.animate-delay-300 { animation-delay: 300ms; }
+.animate-delay-400 { animation-delay: 400ms; }
+.animate-delay-500 { animation-delay: 500ms; }
+.animate-delay-600 { animation-delay: 600ms; }
+
+::view-transition-old(.route-exit) {
+  animation: 120ms ease-out both route-fade-out;
+}
+
+::view-transition-new(.route-enter) {
+  animation: 220ms cubic-bezier(0.2, 0.7, 0.2, 1) 80ms both route-fade-in;
+}
+
+@keyframes route-fade-out {
+  to { opacity: 0; }
+}
+
+@keyframes route-fade-in {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
 .glass-card {
   background: rgba(255,255,255,0.06);
@@ -236,4 +270,26 @@ body {
   background: linear-gradient(#0a1628, #0a1628) padding-box,
               linear-gradient(135deg, rgba(249,115,22,0.5), rgba(99,102,241,0.3)) border-box;
   border: 1px solid transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  ::view-transition-old(*),
+  ::view-transition-new(*),
+  ::view-transition-group(*) {
+    animation-duration: 0s !important;
+    animation-delay: 0s !important;
+  }
 }

@@ -2,6 +2,9 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
+  experimental: {
+    viewTransition: true,
+  },
   // Allow phone/browser access via local IP during development (fixes CSS not loading)
   allowedDevOrigins: [
     "localhost",

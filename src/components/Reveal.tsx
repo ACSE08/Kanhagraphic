@@ -40,15 +40,33 @@ export function Reveal({
     const el = ref.current;
     if (!el) return;
 
+    if (
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches ||
+      !("IntersectionObserver" in window)
+    ) {
+      el.dataset.revealStatic = "true";
+      return;
+    }
+
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    el.dataset.revealPending = "true";
+    el.style.opacity = "0";
+    el.style.transform = applyInitial(direction);
+
     const observer = new IntersectionObserver(
       ([entry]) => {
+        if (!entry) return;
+
         if (entry.isIntersecting) {
-          setTimeout(() => {
+          timer = setTimeout(() => {
             el.style.opacity = "1";
             el.style.transform = "none";
+            delete el.dataset.revealPending;
           }, delay);
           if (once) observer.unobserve(el);
         } else if (!once) {
+          clearTimeout(timer);
+          el.dataset.revealPending = "true";
           el.style.opacity = "0";
           el.style.transform = applyInitial(direction);
         }
@@ -57,7 +75,12 @@ export function Reveal({
     );
 
     observer.observe(el);
-    return () => observer.disconnect();
+
+    return () => {
+      clearTimeout(timer);
+      observer.disconnect();
+      delete el.dataset.revealPending;
+    };
   }, [direction, delay, once, threshold]);
 
   return (
@@ -65,11 +88,9 @@ export function Reveal({
       ref={ref}
       className={className}
       style={{
-        opacity: 0,
-        transform: applyInitial(direction),
+        opacity: 1,
+        transform: "none",
         transition: `opacity ${duration}ms cubic-bezier(0.4,0,0.2,1), transform ${duration}ms cubic-bezier(0.4,0,0.2,1)`,
-        willChange: "opacity, transform",
-        backfaceVisibility: "hidden",
       }}
     >
       {children}
